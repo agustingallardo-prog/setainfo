@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Semáforo de setas · Boletus y Amanita caesarea</title>
+<title>Semáforo de setas · Boletus, Amanita caesarea y níscalo</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -55,12 +55,80 @@
   .legend { display:flex; flex-wrap:wrap; gap:12px; font-size:.8rem; margin:6px 0; }
   .legend span::before { content:""; display:inline-block; width:14px; height:4px; margin-right:5px; vertical-align:middle; background:var(--c); }
   .best { font-size:.85rem; margin:4px 0; }
+  .method a { color:#8b5a2b; }
   .method h3 { margin:12px 0 4px; font-size:.95rem; } .method p, .method li { font-size:.85rem; line-height:1.4; }
+  /* ---- Diseño "setero" ---- */
+  body { background-color:var(--bg);
+    background-image:radial-gradient(circle at 20px 20px,#e9dfc8 2px,transparent 3px),radial-gradient(circle at 60px 55px,#ece3cf 1.5px,transparent 2.5px);
+    background-size:80px 80px; }
+  header { background:linear-gradient(180deg,#5a3f2a,#3c2a1b); border-bottom:4px solid #8b5a2b; }
+  header h1 { font-family:Georgia,'Times New Roman',serif; letter-spacing:.3px; display:flex; align-items:center; gap:10px; }
+  #logo svg { width:38px; height:38px; display:block; }
+  header button { border-radius:999px; background:#e8c07d; box-shadow:0 2px 0 #b98d45; }
+  header button:active { transform:translateY(2px); box-shadow:none; }
+  header input { border-radius:999px; padding-left:14px; }
+  .card { border-radius:14px; }
+  /* Pestañas con forma de sombrero de seta */
+  .tabs { gap:6px; align-items:flex-end; }
+  .tabs button { border-radius:60px 60px 8px 8px / 36px 36px 8px 8px; padding:14px 6px 8px; background:#e6dcc8; color:#4a3524; position:relative; transition:transform .1s; }
+  .tabs button:hover { transform:translateY(-2px); }
+  .tabs button.active { background-color:var(--brown); color:#fff;
+    background-image:radial-gradient(circle at 22% 30%,#ffffff55 3px,transparent 4px),radial-gradient(circle at 70% 22%,#ffffff44 2.5px,transparent 3.5px),radial-gradient(circle at 48% 40%,#ffffff33 2px,transparent 3px); }
+  /* Tarjetas de especie: sombrero arriba, color de la especie */
+  .card.sp { border-radius:70px 70px 14px 14px / 34px 34px 14px 14px; border-top:9px solid var(--cap); padding-top:20px; }
+  #boletus { --cap:#8b5a2b; } #caesarea { --cap:#e8731a; } #niscalo { --cap:#c23b22; }
+  .species .ico svg { width:64px; height:64px; display:block; filter:drop-shadow(0 2px 2px #0003); }
+  .species .ico { flex:none; }
+  .species h2 { font-family:Georgia,'Times New Roman',serif; }
+  .bar { border-radius:999px; height:9px; }
+  .bar b { border-radius:999px; }
+  .prov { background:#fff4d6; border:1px solid #f0c75e; color:#6b4b00; border-radius:10px; padding:8px 12px; font-size:.82rem; margin-bottom:10px; }
+  .prov[hidden] { display:none; }
+  body.terrain-loading .card.sp, body.terrain-loading #chart, body.terrain-loading #best { opacity:.5; transition:opacity .2s; }
+  .card.sp, #chart, #best { transition:opacity .2s; }
+  /* Gráfico interactivo */
+  #chart { position:relative; }
+  svg.chart { touch-action:pan-y; cursor:crosshair; -webkit-user-select:none; user-select:none; }
+  svg.chart * { pointer-events:none; }
+  .tip { position:absolute; top:6px; background:#fffffff2; border:1px solid #ddd; border-radius:8px; padding:6px 9px; font-size:.78rem; line-height:1.35;
+    box-shadow:0 2px 8px #0002; pointer-events:none; white-space:nowrap; z-index:5; }
+  .tip[hidden] { display:none; }
+  .tip .when { color:var(--muted); font-size:.72rem; }
+  .tcheck { cursor:pointer; color:var(--muted); }
+  .tcheck input { vertical-align:middle; margin-right:3px; }
+  /* Mis sitios */
+  .sitios { margin:6px 0 12px; }
+  .sitio-add { display:flex; gap:6px; flex-wrap:wrap; }
+  .sitio-add input { flex:1 1 140px; min-width:0; padding:8px 12px; border-radius:999px; border:1px solid #cdbd9c; background:#fff; font-size:1rem; }
+  .sitio-add button, .histctl button { padding:8px 12px; border-radius:999px; border:0; background:#e8c07d; box-shadow:0 2px 0 #b98d45; font-weight:600; cursor:pointer; font-size:.9rem; }
+  .sitio-add button:active, .histctl button:active { transform:translateY(2px); box-shadow:none; }
+  .histctl button:disabled { opacity:.5; cursor:wait; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .chip { display:inline-flex; align-items:center; background:#e6dcc8; border-radius:999px; overflow:hidden; }
+  .chip button { border:0; background:none; cursor:pointer; padding:6px 8px; font-size:.85rem; color:#4a3524; }
+  .chip .go { padding-left:12px; font-weight:600; }
+  .chip .del { color:#8a6a4a; padding-right:10px; }
+  /* Calendario histórico */
+  .histctl { display:flex; gap:6px; margin:8px 0; flex-wrap:wrap; }
+  .histctl select { padding:7px 10px; border-radius:999px; border:1px solid #cdbd9c; background:#f6ecd6; font-size:.9rem; }
+  table.hist { border-collapse:separate; border-spacing:2px; font-size:.7rem; margin-top:6px; }
+  table.hist th, table.hist td { padding:5px 4px; text-align:center; border:0; border-radius:4px; min-width:30px; }
+  table.hist th { background:#f1ead9; font-weight:600; position:sticky; left:0; }
+  table.hist tr:first-child th { position:static; }
+  table.hist tr.avg th, table.hist tr.avg td { font-weight:700; }
+  .tabs { flex-wrap:wrap; }
+  .tabs button { flex:1 1 auto; }
+  @media (max-width:620px) { .tabs button { font-size:.74rem; padding:12px 2px 7px; flex:1 1 30%; } .tabs { gap:4px; } }
+  .about-head { display:flex; align-items:center; gap:12px; margin-bottom:4px; }
+  .about-head svg { width:52px; height:52px; display:block; filter:drop-shadow(0 2px 2px #0003); }
+  .about-head b { font-family:Georgia,'Times New Roman',serif; font-size:1.05rem; }
+  /* Aviso de pie */
+  .note { text-align:center; }
 </style>
 </head>
 <body>
 <header>
-  <h1>🍄 Semáforo de setas</h1>
+  <h1><span id="logo"></span>Semáforo de setas</h1>
   <div class="search">
     <input id="q" placeholder="Buscar lugar (ej. Trujillo)…">
     <button id="go">Buscar</button>
@@ -71,46 +139,263 @@
   <section>
     <div id="map"></div>
     <p id="status">Haz clic en el mapa para elegir una ubicación.</p>
+    <div class="sitios">
+      <div class="sitio-add"><input id="sitioNombre" placeholder="Nombre del sitio" maxlength="40" aria-label="Nombre del sitio"><button id="sitioGuardar">⭐ Guardar este punto</button></div>
+      <div id="sitioLista" class="chips"></div>
+    </div>
   </section>
   <section>
     <div class="tabs">
       <button class="active" data-tab="hoy">Hoy</button>
       <button data-tab="prono">Pronóstico</button>
+      <button data-tab="historial">Historial</button>
       <button data-tab="metodo">Método</button>
+      <button data-tab="versiones">Versiones</button>
+      <button data-tab="about">Acerca de</button>
     </div>
 
+    <div id="provisional" class="prov" hidden>⏳ Resultado provisional (solo tiempo): añadiendo terreno, altitud y hábitat… los valores cambiarán.</div>
+
     <div class="tab active" id="tab-hoy">
-      <div class="card" id="boletus"></div>
-      <div class="card" id="caesarea"></div>
+      <div class="card sp" id="boletus"></div>
+      <div class="card sp" id="caesarea"></div>
+      <div class="card sp" id="niscalo"></div>
+      <div class="card" id="terreno"></div>
       <div class="card"><b>Últimos 7 días y previsión</b><div class="tablewrap"><table id="days"></table></div></div>
     </div>
 
     <div class="tab" id="tab-prono">
       <div class="card">
-        <b>Evolución de la probabilidad (14 días atrás → 16 días adelante)</b>
-        <div class="legend"><span style="--c:#8b5a2b">Boletus</span><span style="--c:#e07b00">Amanita caesarea</span><span style="--c:#6aa9e0">Lluvia diaria</span></div>
+        <b>Índice de aparición, no calibrado (14 días atrás → previsión + proyección)</b>
+        <div class="legend"><span style="--c:#8b5a2b">Boletus</span><span style="--c:#e07b00">Amanita caesarea</span><span style="--c:#c23b22">Níscalo</span><span style="--c:#6aa9e0">Lluvia diaria</span><span style="--c:#444">T. día</span><span style="--c:#3b5bdb">T. noche</span>
+          <label class="tcheck"><input type="checkbox" id="showT" checked> mostrar temperaturas</label></div>
         <div id="chart"></div>
         <div id="best"></div>
-        <p class="note">Línea continua = datos reales; discontinua = previsión. La fiabilidad baja con los días: la lluvia a más de 7 días vista es poco precisa.</p>
+        <p class="note">Línea continua = tiempo ya ocurrido. Discontinua = previsión (la lluvia a más de 7 días vista es poco precisa). Punteada sobre fondo gris = proyección más allá de la previsión: ahí el agua que dispara la fructificación <b>ya ha caído</b>, así que solo se supone que no vuelve a llover y que la temperatura se mantiene.</p>
+      </div>
+    </div>
+
+    <div class="tab" id="tab-historial">
+      <div class="card">
+        <b>Calendario histórico del punto (otoño)</b>
+        <p class="note" style="text-align:left">Índice medio por semana (desde el 1 ago) de esta temporada y las 5 anteriores, calculado con el tiempo real de cada año (reanálisis ERA5 vía Open-Meteo) y el terreno actual del punto. Sirve para ver cuándo suele ser buena la campaña y compararlo con lo que recuerdas de cada año. Incluye el factor de época del año, así que el pico siempre cae en otoño.</p>
+        <div class="histctl"><select id="histSp" aria-label="Especie"></select><button id="histGo">Calcular historial</button></div>
+        <div id="histMsg" class="note" style="text-align:left"></div>
+        <div id="hist" class="tablewrap"></div>
       </div>
     </div>
 
     <div class="tab method" id="tab-metodo">
       <div class="card">
         <b>¿Cómo se calcula?</b>
-        <p>Cada día se puntúa mirando <u>hacia atrás</u>, porque las setas fructifican entre 5 y 15 días después de las condiciones que las disparan:</p>
+        <p>El índice de un día estima la <b>aparición</b> de setas ese día, no si hace buen tiempo ese día. Separa dos cosas:</p>
+        <p><b>1. El agua (factor limitante).</b> Sin agua no hay setas, por bueno que sea todo lo demás, así que este bloque entra como <b>multiplicador aparte</b> y no se puede compensar con un pH perfecto ni con la temperatura ideal. Lo forman tres cosas:</p>
         <ul>
-          <li><b>Lluvia acumulada 14 días</b> (peso 3): ~20–60 mm es lo ideal.</li>
-          <li><b>Temperatura media 7 días</b> (peso 2): boletus 9–18 °C; caesarea 16–24 °C.</li>
-          <li><b>Temperatura del suelo 7 días</b> (peso 2): boletus 9–17 °C; caesarea 15–23 °C.</li>
-          <li><b>Humedad del suelo 3 días</b> (peso 1,5).</li>
-          <li><b>Días desde la última lluvia ≥ 8 mm</b> (peso 1,5): lo óptimo son 2–12 días (el micelio tarda en responder).</li>
+          <li><b>Lluvia disparadora</b> (peso 3): la lluvia que provoca la fructificación cayó días antes, porque el carpóforo tarda en formarse y hacerse visible. Cada día de lluvia pesa según lo lejos que quede del <b>retardo <i>L</i></b> de cada especie (boletus 8 d, níscalo 10 d, caesarea 12 d): el peso sube hasta <i>L</i> y luego decae con una cola larga, como una brotada que se va agotando. Lo ideal equivale a ~35–90 mm (por encima de ~200 mm se penaliza por encharcamiento). El umbral es alto a propósito: romper la sequía mediterránea de verano exige bastante agua, no un par de chubascos.</li>
+          <li><b>Humedad del suelo sostenida</b> (peso 2): no basta con que el suelo esté húmedo hoy ni con que se mojara en su día; tiene que haberse <b>mantenido húmedo desde que se mojó</b>. Se busca el día más húmedo de la ventana disparadora y se toma el <b>mínimo desde ahí hasta hoy</b>: si por el camino se secó, la brotada se abortó. La sequía anterior a la lluvia no cuenta, porque de eso ya se encarga el retardo. Por debajo de ~12 % (punto de marchitez en estos suelos) la nota es cero; el óptimo empieza hacia el 24 %.</li>
         </ul>
-        <p>Cada factor da un valor 0–1 (1 dentro del rango óptimo, bajando hasta 0). Se combinan con <b>media geométrica ponderada</b>: un factor muy malo (p. ej. sin lluvia) hunde el total. Después se multiplica por la <b>época del año</b> y por un <b>castigo por helada</b> (T. mín. de los últimos 7 días).</p>
-        <p>En el pronóstico se aplica la misma fórmula a cada día futuro usando la lluvia y temperatura previstas.</p>
+        <p><b>2. El crecimiento (ahora).</b> Mientras la seta crece necesita condiciones que la acompañen, y esas se miran en los días recientes: <b>temperatura media de 5 días</b> (peso 2: boletus 9–18 °C, níscalo 8–16 °C, caesarea 16–24 °C), <b>temperatura máxima media de 5 días</b> (peso 1,5: por encima de ~26 °C el boletus se va a cero, el níscalo a 25 °C, la caesarea aguanta hasta 33 °C) y <b>temperatura del suelo de 5 días</b> (peso 2). La máxima va aparte porque la media diaria esconde los días de calor que secan el terreno y abortan los primordios.</p>
+        <p><b>3. El sitio (fijo).</b> <b>pH</b> (peso 2) y <b>arcilla</b> (peso 1) de SoilGrids: las tres prefieren suelos ácidos o ligeramente ácidos (el níscalo tolera más la caliza); los muy arcillosos se penalizan por encharcamiento. <b>Orientación</b> (peso 1), calculada con la altitud de 5 puntos a ~300 m: boletus y níscalo ganan en umbría; la caesarea, termófila, en solana.</p>
+        <p>Cada factor da un valor de 0 a 1. Dentro de cada bloque se combinan con <b>media geométrica ponderada</b>; luego el bloque de crecimiento y sitio se <b>multiplica</b> por el bloque de agua. Así, con el terreno seco el índice cae aunque el resto sea perfecto.</p>
+        <p>El <b>hábitat</b> se consulta en <b>5 puntos</b> (el elegido y cuatro a ~300 m) y se promedia, porque CORINE tiene ~100 m de resolución y en dehesa cambia de clase cada pocos cientos de metros: una sola celda no representa dónde buscas de verdad. Los valores son suaves a propósito (entre 0,45 y 1; solo el agua baja a 0,15), ya que un dato tan grueso no puede justificar por sí solo un castigo de varias veces.</p>
+        <p>Luego se multiplica por tres cosas: la <b>época del año</b>, un <b>castigo por helada</b> (rampa continua sobre la T. mín. de los últimos 7 días: daña el carpóforo ya formado, por debajo de 0 °C en el boletus y de −1 °C en el níscalo; la caesarea aguanta menos). La preferencia térmica de cada especie no va aquí, sino en la temperatura del aire y del suelo y el <b>hábitat</b> (CORINE Land Cover): sin arbolado no hay hongos micorrícicos. Frondosas, mixto y dehesa ×1; matorral esclerófilo ×0,8; cultivo o pastizal ×0,3; la caesarea en coníferas ×0,5. Frondosas, mixto y dehesa ×1; esclerófila ×0,9; matorral ×0,7; pastizal ×0,6; cultivo ×0,5. El <b>níscalo</b> al revés: necesita pinos (coníferas y mixto ×1; esclerófila ×0,7; frondosas y dehesa ×0,5). No distingue especie de árbol.</p>
+        <p><b>Ventaja del retardo:</b> los próximos <i>L</i> días del pronóstico dependen de lluvia que <u>ya ha caído</u>, no de la previsión. Esa parte es bastante más fiable que el resto.</p>
+        <h3>¿De dónde salen los retardos?</h3>
+        <p>No hay una cifra validada ni universal; la bibliografía usa ventanas muy distintas y casi toda se ha hecho en pinares de Soria o en hayedos centroeuropeos, no en dehesa extremeña. Lo consultado:</p>
+        <ul>
+          <li>Un seguimiento de 10 años de <i>Boletus edulis</i> en hayedo alemán (preprint, sin revisión por pares) modela la temperatura y la lluvia de los <b>5 días previos</b> y sitúa el óptimo térmico en <b>13,2 °C</b>, con la fructificación creciendo de forma lineal con la lluvia.</li>
+          <li>En pinares mediterráneos españoles la producción sigue al tiempo del mismo mes, con la precipitación actuando con <b>un mes de retraso</b>.</li>
+          <li>En encinares mediterráneos, el <b>agua del suelo</b> es el principal motor de la fenología de fructificación.</li>
+          <li>Estudios de transferencia de carbono: el flujo de la planta al carpóforo alcanza su máximo <b>17–21 días</b> después de la fotosíntesis, y el desarrollo del carpóforo puede durar hasta 20 días.</li>
+          <li>Fuentes divulgativas españolas hablan de 10–14 días tras la lluvia para el boletus y de 15–20 días para la oronja. No citan fuente.</li>
+          <li>Para <i>Amanita caesarea</i> no se encontró ningún estudio con un retardo cuantificado.</li>
+        </ul>
+        <p>Los valores <i>L</i> de 8, 10 y 12 días son <b>hipótesis mías</b> dentro de ese rango, no resultados publicados. Si en tu zona ves otro retardo, se cambian en el campo <code>lag</code> del objeto <code>SPECIES</code>.</p>
         <h3>¿Es fiable?</h3>
-        <p>Es un modelo heurístico: sirve para <b>comparar días y detectar ventanas favorables</b>, no para dar probabilidades reales. Limitaciones: no considera tipo de bosque, orientación, umbría, altitud fina ni micorrizas concretas; la temperatura del suelo es de modelo (rejilla ~10 km).</p>
-        <p>Para validarlo: anota qué días encuentras setas (o no) en tu zona y compara con la gráfica. Si el semáforo sale verde 5–12 días antes de tus mejores salidas, los rangos están bien; si no, hay que ajustar los parámetros del objeto <code>SPECIES</code>. Se podría añadir un registro de hallazgos para calibrarlo automáticamente.</p>
+        <p>Es un <b>índice de favorabilidad heurístico y no calibrado</b>: sirve para <b>comparar días y detectar ventanas favorables</b>, no es una probabilidad real de encontrar setas. Además, "no encontrar" no equivale a "no hay": el hongo puede estar sin fructificar.</p>
+        <p>Limitaciones: no distingue la especie de árbol hospedador ni la altitud fina; la temperatura y la humedad del suelo son de modelo (rejilla ~10 km) y el mapa de hábitat tiene celdas de ~100 m.</p>
+
+        <h3>Contraste con observaciones reales (Deleitosa)</h3>
+        <p>Siete salidas reales, con su fecha, frente a lo que dice el modelo <b>después</b> de las correcciones v2.1 a v2.5. No es una validación estadística: son siete datos de un solo punto, y las correcciones se hicieron a partir de los cuatro negativos, así que esos no son una prueba independiente. Los tres positivos de 2023 y 2024 sí lo son, porque aparecieron cuando el modelo ya estaba corregido.</p>
+        <table style="margin-top:6px">
+          <tr><th>Fecha</th><th>En el campo</th><th>Boletus</th></tr>
+          <tr><td>11 nov 2023</td><td><b>Boletus</b> y amanitas</td><td style="color:var(--green)"><b>87</b> ✓</td></tr>
+          <tr><td>20 oct 2024</td><td>Hubo setas (macrolepiotas)</td><td style="color:var(--green)"><b>87</b> ✓</td></tr>
+          <tr><td>3 nov 2024</td><td><b>Cosecha de boletus</b></td><td style="color:var(--green)"><b>87</b> ✓</td></tr>
+          <tr><td>20 oct 2026</td><td>Nada, terreno seco</td><td style="color:var(--red)"><b>28</b> ✓</td></tr>
+          <tr><td>27 oct 2026</td><td>Nada, terreno seco</td><td style="color:var(--red)"><b>6</b> ✓</td></tr>
+          <tr><td>29 oct 2026</td><td>Nada, terreno seco</td><td style="color:var(--red)"><b>3</b> ✓</td></tr>
+          <tr><td>1–2 nov 2026</td><td>Nada, terreno seco</td><td style="color:var(--red)"><b>4</b> ✓</td></tr>
+        </table>
+        <p>El contraste entre temporadas es lo más claro. En <b>2023</b> cayeron 48 mm el 19 de octubre y siguió lloviendo casi a diario: el suelo se mantuvo entre el 33 % y el 41 % hasta mediados de noviembre, con el índice clavado en 87 durante tres semanas. En <b>2024</b> cayeron ~132 mm en once días de octubre y el suelo aguantó entre el 25 % y el 42 % durante seis semanas, otra vez con 87. En <b>2026</b> cayeron 39 mm a principios de octubre, el suelo bajó al 11 % y el índice se quedó entre 3 y 28.</p>
+        <p>Para seguir afinándolo hace falta más de lo mismo: anotar qué días hay setas y qué días no. Si el verde no coincide con tus buenas salidas, hay que tocar los parámetros del objeto <code>SPECIES</code>.</p>
+      </div>
+    </div>
+    <div class="tab method" id="tab-about">
+      <div class="card">
+        <div class="about-head"><span id="aboutIco"></span>
+          <div><b>Semáforo de setas</b><br><span class="note">Una herramienta de aficionado, hecha para el campo</span></div>
+        </div>
+        <h3>Quién hay detrás</h3>
+        <p>Soy <b>aficionado a las setas</b> e <b>ingeniero informático</b>. Esta página nace de juntar las dos cosas: el gusto por salir al monte y la costumbre de cruzar datos para entender qué está pasando.</p>
+        <p>No soy micólogo ni investigador. Lo que hay aquí es un modelo construido con sentido común, datos públicos gratuitos y lo que he podido consultar de la bibliografía; no es un trabajo científico y no pretende serlo.</p>
+        <h3>Cómo va a mejorar</h3>
+        <p>El algoritmo <b>no está calibrado</b>: sus rangos y sus retardos son hipótesis de partida. Irá mejorando poco a poco con <b>aportaciones y datos contrastados</b>:</p>
+        <ul>
+          <li><b>Salidas reales al campo</b>, tanto las que encuentran setas como las que no. Una sola salida sin hallazgos, con el terreno seco, bastó para destapar un fallo de fondo y corregirlo (v2.1 en Versiones).</li>
+          <li><b>Conocimiento local</b> de quien lleva años pisando una zona: cuánto tardan en salir tras las lluvias, qué laderas responden antes, qué semanas cuentan de verdad.</li>
+          <li><b>Bibliografía</b> que ponga cifras donde ahora hay suposiciones, sobre todo en dehesa y monte mediterráneo, que es lo menos estudiado.</li>
+        </ul>
+        <p>Cada cambio queda anotado en la pestaña <b>Versiones</b>, con lo que se tocó y por qué. Si algo no encaja con lo que ves en tu monte, eso es justamente el dato que falta.</p>
+        <h3>Aviso</h3>
+        <p>Esto es una <b>estimación orientativa</b>, no una predicción. No sirve para identificar especies ni para decidir si algo es comestible: <b>de eso se ocupa siempre un experto</b>. Y respeta la normativa de recolección de cada zona, que cambia de un sitio a otro.</p>
+      </div>
+    </div>
+
+    <div class="tab method" id="tab-versiones">
+      <div class="card">
+        <b>Historial del algoritmo</b> <span class="note">(versión actual: 2.5)</span>
+        <h3>Contraste · 3 nov 2026</h3>
+        <ul>
+          <li>Primeras observaciones <b>positivas</b> en Deleitosa: boletus y amanitas el 11 de noviembre de 2023, setas (macrolepiotas) el 20 de octubre de 2024 y una cosecha de boletus el 3 de noviembre de 2024.</li>
+          <li>El modelo ya corregido da <b>87/100</b> para boletus en las tres fechas, frente a 3–28 en las cuatro salidas sin hallazgos de 2026. La tabla completa está en la pestaña Método.</li>
+          <li>Son los primeros datos que no se usaron para construir el modelo, así que valen como comprobación independiente. Siete observaciones de un punto siguen siendo pocas.</li>
+        </ul>
+        <h3>v2.5 · 3 nov 2026 · Un píxel no decide</h3>
+        <ul>
+          <li><b>Cuarta corrección desde el campo:</b> el calendario histórico salía todo en rojo en una zona donde sí ha habido setas en noviembres anteriores. Los valores eran los mismos que en otros puntos pero divididos por ocho.</li>
+          <li><b>Causa:</b> el hábitat se consultaba en <b>un solo punto</b> de CORINE, que tiene celdas de ~100 m. Comprobado alrededor de Deleitosa: en menos de un kilómetro la clase pasa de «bosque de frondosas» (×1,0) a «esclerófila» (×0,8) y a «pastizal» (×0,3). Si el punto caía en una celda clasificada como artificial, el multiplicador era ×0,1 y hundía todo el calendario.</li>
+          <li><b>Arreglo 1:</b> se consultan <b>5 puntos</b> (el elegido y cuatro a ~300 m) y se promedia. En un mosaico de dehesa, una celda suelta no dice dónde buscas realmente.</li>
+          <li><b>Arreglo 2:</b> los multiplicadores se suavizan a un rango de 0,45 a 1 (antes 0,1 a 1). Solo el agua baja más, a 0,15. Un dato de 100 m de resolución no puede justificar por sí solo un castigo de 10 veces.</li>
+          <li><b>Efecto en Deleitosa:</b> el hábitat pasa de ×0,80 a ×0,92, y los noviembres de 2021 a 2025 suben de 70–76 a <b>80–87</b> en el historial. Esta temporada se queda en 51 y cayendo a 13, así que la diferencia entre un buen año y este sigue viéndose.</li>
+          <li>La tarjeta de Terreno muestra ahora todas las clases encontradas en los 5 puntos, para poder ver de dónde sale el número.</li>
+        </ul>
+        <h3>v2.4 · 3 nov 2026 · Fuera redundancias, dentro el calor</h3>
+        <ul>
+          <li>El 20 de octubre se quedaba en 30, justo en el borde del ámbar, cuando tampoco había nada en el campo. Dos cambios para bajarlo sin falsear el resto.</li>
+          <li><b>Fuera el balance hídrico.</b> Era redundante: la humedad del suelo <i>ya es</i> el balance entre lluvia y evapotranspiración, medido bien. Tenerlo aparte solo servía para inflar el bloque de agua — el 20 de octubre valía 1,00 sobre 1 con el terreno al 15 %, lo que es contradictorio.</li>
+          <li><b>Dentro la temperatura máxima</b> (peso 1,5). La media diaria escondía lo que pasó: del 10 al 16 de octubre hubo máximas de 25 a 28 °C, que secan la superficie y abortan los primordios, pero la media se quedaba en 16 °C y puntuaba perfecto.</li>
+          <li><b>Efecto:</b> el 20 de octubre baja de 30 a <b>24</b> y la caesarea de 34 a <b>29</b>; las tres especies quedan en rojo. El 27 de octubre pasa a 5, el 29 a 3 y hoy a 3.</li>
+          <li>El pico tras la lluvia del 9 al 12 de noviembre no solo se mantiene, sino que sube a <b>76</b>: quitar un factor que diluía la nota deja destacar más los días realmente buenos.</li>
+        </ul>
+        <h3>v2.3 · 3 nov 2026 · El suelo tiene que aguantar</h3>
+        <ul>
+          <li><b>Tercera corrección desde el campo:</b> el 20 de octubre el gráfico seguía marcando ~60 para boletus y caesarea, y tampoco había nada en el monte.</li>
+          <li><b>Causa:</b> el modelo miraba si había llovido y si el suelo estaba húmedo <i>hoy</i>, pero no qué había pasado <b>entre medias</b>. Los 39 mm del 4 al 7 de octubre dejaron el suelo al 32 %, pero del 8 al 16 se secó hasta el 15 % con máximas de 25 a 28 °C. Cualquier brotada se habría abortado, y aun así el 20 de octubre puntuaba como si la lluvia siguiera contando entera.</li>
+          <li><b>Arreglo:</b> la humedad del suelo pasa a ser <b>sostenida</b>: se toma el mínimo desde el día más húmedo de la ventana disparadora hasta hoy. Si se secó por el camino, la nota se hunde.</li>
+          <li>Además, el umbral de lluvia disparadora sube de ~20 a <b>~35 mm</b> equivalentes: romper la sequía de verano exige más que un par de chubascos.</li>
+          <li><b>Efecto:</b> el 20 de octubre pasa de 54 a <b>30</b>, el 27 de 16 a <b>8</b> y el 29 a <b>6</b>. El pico tras la lluvia del 9 al 12 de noviembre se mantiene en 74.</li>
+          <li><b>Comprobación de conjunto:</b> en el historial, esta temporada queda como mala (máximo 34, cayendo a 14), mientras 2021–2025 llegan a 57–75 en noviembre. Encaja con una campaña en la que no estás encontrando nada.</li>
+        </ul>
+        <h3>v2.2 · 3 nov 2026 · Lluvia vieja y suelo seco</h3>
+        <ul>
+          <li><b>Segunda corrección desde el campo:</b> el gráfico seguía marcando 60–66 para finales de octubre en la zona de Deleitosa, cuando no había setas, el terreno estaba muy seco y las temperaturas eran altas.</li>
+          <li><b>Causa 1 — lluvia vieja y dispersa.</b> La ventana disparadora sumaba 15 días sin mirar cómo se repartía la lluvia: 35 mm caídos sobre todo el 6 de octubre, tres semanas antes y seguidos de nueve días secos, se daban por óptimos.</li>
+          <li><b>Causa 2 — umbral de suelo irreal.</b> Una humedad del 13 % puntuaba 0,37 sobre 1 cuando en estos suelos eso es prácticamente punto de marchitez. El umbral pasa de 10 % a <b>12 %</b> y el óptimo de 18 % a <b>24 %</b>.</li>
+          <li><b>Arreglo:</b> la lluvia deja de contarse con una ventana de bordes duros. Cada día pesa según lo cerca que esté del retardo, con subida y cola larga. Así ni la lluvia vieja cuenta como reciente ni el índice se desploma de golpe cuando un día de lluvia sale de la ventana (eso producía caídas de 54 puntos en 24 horas).</li>
+          <li><b>Efecto:</b> el 27 de octubre pasa de 60 a <b>16</b> y el 29 a <b>7</b>; hoy queda en 5. El pico tras la lluvia del 9–12 de noviembre se mantiene en 74, seis días después, y la curva ya no tiene escalones.</li>
+        </ul>
+        <h3>v2.1 · 3 nov 2026 · El agua manda</h3>
+        <ul>
+          <li><b>Corrección a partir de una salida real al campo:</b> la app marcaba favorabilidad media para boletus en la zona de Deleitosa y no había ni una seta; el terreno estaba muy seco y las temperaturas altas.</li>
+          <li>Causa: todos los factores se promediaban juntos. La lluvia disparadora (0,20) y la humedad del suelo (0,12) estaban por los suelos, pero el pH y las temperaturas, perfectos, tiraban la nota hasta 39.</li>
+          <li>Arreglo: el <b>agua</b> (lluvia disparadora, humedad del suelo y balance hídrico) pasa a ser un <b>factor limitante</b> que multiplica al resto, en lugar de un ingrediente más. Es la ley del mínimo: sin agua no hay seta, por bueno que sea lo demás.</li>
+          <li>Efecto en ese mismo día: boletus baja de 39 a <b>14</b> y las tres especies quedan en rojo. Tras una lluvia buena el índice sigue llegando a 67, así que la corrección no aplana el modelo.</li>
+          <li>La tarjeta de cada especie muestra ahora el multiplicador de agua.</li>
+        </ul>
+        <h3>v2.0 · 3 nov 2026 · Aparición con retardo</h3>
+        <ul>
+          <li><b>Cambio de fondo:</b> el índice ya no mide «hoy hace buen tiempo» sino «hoy deberían verse setas». La lluvia disparadora se mira con retardo (boletus 8 d, níscalo 10 d, caesarea 12 d), porque el carpóforo tarda en formarse.</li>
+          <li>Antes el índice subía <b>el mismo día</b> que empezaba a llover. Ahora sube unos días después, y el pico se desplaza a la derecha.</li>
+          <li>Se quitan <b>lluvia 14 d</b>, <b>lluvia 30 d</b> y <b>días desde la última lluvia</b>, que medían lo mismo tres veces y amplificaban el salto. Queda una ventana disparadora de 15 días y el balance hídrico.</li>
+          <li>Temperatura del aire y del suelo pasan de 7 a <b>5 días</b>: acompañan al crecimiento del carpóforo. El óptimo del boletus (9–18 °C) coincide con los 13,2 °C del seguimiento alemán.</li>
+          <li>El <b>castigo por helada</b> pasa a ser una rampa continua y se ciñe a temperaturas de congelación. Antes era escalonado y muy severo (una noche de 1 °C bajaba el índice un 40 %), lo que duplicaba el frío ya contado por la temperatura y provocaba saltos al salir un día frío de la ventana.</li>
+          <li>El gráfico se prolonga más allá de la previsión: con retardo, esos días dependen de lluvia <b>ya caída</b>. Se dibujan punteados sobre fondo gris, suponiendo que no vuelve a llover.</li>
+          <li>Los retardos (8, 10 y 12 días) son hipótesis dentro del rango que sugiere la bibliografía, no resultados publicados. Las fuentes están al final de esta pestaña.</li>
+        </ul>
+        <h3>v1.5 · 3 nov 2026 · Níscalo</h3>
+        <ul>
+          <li>Nueva especie: <b>níscalo</b> (<i>Lactarius deliciosus</i>), asociado a pinos. Más tolerante a temperaturas frías y a suelos calizos que los boletus; pico en octubre y noviembre.</li>
+          <li>Hábitat invertido respecto a la caesarea: necesita coníferas o bosque mixto (×1); frondosas y dehesa ×0,3.</li>
+          <li>Rangos orientativos de partida, sin calibrar con datos de campo.</li>
+        </ul>
+        <h3>Interfaz · 3 nov 2026 (el algoritmo no cambia)</h3>
+        <ul>
+          <li><b>Temperaturas en el gráfico:</b> medias de día (8–20 h) y de noche (21–7 h) de los 14 días previos y la previsión, con eje propio en °C y casilla para ocultarlas.</li>
+          <li><b>Mis sitios:</b> guardar puntos con nombre y volver a ellos con un toque (se guardan solo en este dispositivo).</li>
+          <li><b>Historial:</b> índice medio por semana de esta temporada y las 5 anteriores, con el tiempo real de cada año, para comparar con tu experiencia.</li>
+          <li>Gráfico interactivo: con el ratón o el dedo se ve el día, los índices de ambas especies y la lluvia.</li>
+        </ul>
+        <h3>v1.4 · 3 nov 2026 · Relieve y hábitat</h3>
+        <ul>
+          <li><b>Orientación y pendiente</b> calculadas con la altitud de 5 puntos cercanos (Open-Meteo): umbría favorece al boletus; solana, a la caesarea.</li>
+          <li><b>Hábitat</b> según CORINE Land Cover como multiplicador por especie (frondosas, mixto, dehesa, matorral, cultivo…).</li>
+          <li>Limitación: CORINE no distingue la especie de árbol. El Mapa Forestal de España (MITECO) sí lo haría, pero no se pudo comprobar su servicio.</li>
+        </ul>
+        <h3>v1.3 · 3 nov 2026 · Memoria hídrica y honestidad</h3>
+        <ul>
+          <li>Nuevos factores: <b>lluvia acumulada 30 días</b> y <b>balance hídrico 30 días</b> (lluvia menos evapotranspiración ET0, de Open-Meteo). Ambos se retiraron después, en v2.0 y v2.4.</li>
+          <li>La puntuación se presenta como <b>índice de favorabilidad no calibrado</b>, no como probabilidad: los rangos son hipótesis sin validar con datos de campo.</li>
+          <li>Aviso: "no encontrar" no equivale a "no hay"; el hongo puede estar sin fructificar.</li>
+        </ul>
+        <h3>v1.2 · 3 nov 2026 · Terreno</h3>
+        <ul>
+          <li>Nuevos factores de suelo desde SoilGrids: <b>pH</b> (peso 2) y <b>arcilla</b> (peso 1). Los suelos calizos puntúan muy bajo; los muy arcillosos se penalizan.</li>
+          <li>Tarjeta "Terreno" con pH, textura, materia orgánica y cobertura cercana (OpenStreetMap, solo informativa).</li>
+          <li>Si el servicio de suelo no responde, esos factores se omiten y se calcula solo con el tiempo.</li>
+        </ul>
+        <h3>v1.1 · 3 nov 2026 · Pronóstico</h3>
+        <ul>
+          <li>Gráfica de 14 días atrás a 16 días adelante: la fórmula se aplica a cada día mirando hacia atrás.</li>
+          <li>Indicación del mejor día previsto para cada especie.</li>
+        </ul>
+        <h3>v1.0 · 3 nov 2026 · Base meteorológica</h3>
+        <ul>
+          <li>Lluvia acumulada 14 días, temperatura media 7 días, temperatura del suelo 7 días, humedad del suelo 3 días y días desde la última lluvia ≥ 8 mm.</li>
+          <li>Media geométrica ponderada, multiplicada por la época del año y un castigo por helada.</li>
+          <li>Semáforo: rojo &lt; 30, ámbar 30–59, verde ≥ 60.</li>
+        </ul>
+        <h3>Ideas pendientes</h3>
+        <ul>
+          <li>Especie concreta de árbol hospedador (Mapa Forestal de España): sigue siendo el hueco más importante.</li>
+          <li>Calibrar los retardos (<code>lag</code>) con hallazgos reales de la zona: es lo que falta para que las cifras signifiquen algo.</li>
+          <li>Retardo variable con la temperatura (con calor el carpóforo crece antes) e interacciones agua × temperatura × época.</li>
+          <li>Validación frente a un modelo simple de solo época del año.</li>
+          <li>Calibración con hallazgos reales.</li>
+        </ul>
+
+        <h3>Cómo se ha construido</h3>
+        <p>Página estática de un solo archivo HTML, sin servidor ni base de datos: todo el cálculo ocurre en el navegador. Alojada gratis en GitHub Pages y pensada para añadirse a la pantalla de inicio del móvil.</p>
+        <p><b>Punto de partida (v1.0):</b> rangos óptimos puestos a ojo a partir de conocimiento general, combinados con media geométrica ponderada. A partir de ahí se fueron añadiendo capas de datos reales (terreno, relieve, hábitat) y corrigiendo los problemas que iban apareciendo al mirar los resultados.</p>
+        <p><b>Dos correcciones de fondo</b>, ambas surgidas de comparar la salida con la experiencia de campo:</p>
+        <ul>
+          <li><b>v1.3:</b> dejar de llamar «probabilidad» a algo sin calibrar. Es un índice de favorabilidad, y ahora lo dice.</li>
+          <li><b>v2.0:</b> el índice subía el mismo día que empezaba a llover, cuando lo que se observa es que las setas salen alrededor de una semana después. Se separó el <b>disparador</b> (agua pasada, con retardo) del <b>crecimiento</b> (temperatura y humedad de los días inmediatos), siguiendo lo que indica la bibliografía consultada.</li>
+        </ul>
+        <p><b>Correcciones con datos de campo (v2.1 y v2.2):</b> tres salidas sin hallazgos y una revisión del calendario histórico bastaron para destapar cinco fallos de fondo: el modelo dejaba compensar la falta de agua con un buen pH, daba por buena lluvia caída tres semanas antes, consideraba húmedo un suelo que estaba en punto de marchitez , no miraba si el terreno se había secado entre la lluvia y la salida, y dejaba que una sola celda de 100 m del mapa de hábitat dividiera el resultado por diez. Es justo el tipo de dato que hace falta para seguir ajustándolo.</p>
+        <p><b>Lo que no está hecho:</b> ningún parámetro está calibrado con observaciones de campo. Los rangos y los retardos son hipótesis. No hay registro de hallazgos, que es lo único que permitiría validar el modelo de verdad.</p>
+
+        <h3>Servicios de datos (todos públicos y gratuitos)</h3>
+        <ul>
+          <li><a target="_blank" rel="noopener" href="https://open-meteo.com/">Open-Meteo</a target="_blank" rel="noopener"> — previsión, histórico (reanálisis ERA5), temperatura y humedad del suelo, evapotranspiración y altitud. Gratuito para uso no comercial.</li>
+          <li><a target="_blank" rel="noopener" href="https://soilgrids.org/">SoilGrids (ISRIC)</a target="_blank" rel="noopener"> — pH, textura y materia orgánica del suelo, resolución ~250 m. Licencia CC-BY 4.0.</li>
+          <li><a target="_blank" rel="noopener" href="https://land.copernicus.eu/en/products/corine-land-cover">CORINE Land Cover (Agencia Europea de Medio Ambiente)</a target="_blank" rel="noopener"> — tipo de cubierta vegetal, resolución ~100 m.</li>
+          <li><a target="_blank" rel="noopener" href="https://www.openstreetmap.org/">OpenStreetMap</a target="_blank" rel="noopener"> y <a target="_blank" rel="noopener" href="https://overpass-api.de/">Overpass API</a target="_blank" rel="noopener"> — mapa base, búsqueda de lugares y cobertura cercana (ODbL).</li>
+          <li><a target="_blank" rel="noopener" href="https://pnoa.ign.es/">PNOA · Instituto Geográfico Nacional</a target="_blank" rel="noopener"> — ortofoto de España (CC-BY 4.0). Satélite mundial de Esri y relieve de <a target="_blank" rel="noopener" href="https://opentopomap.org/">OpenTopoMap</a target="_blank" rel="noopener">.</li>
+          <li><a target="_blank" rel="noopener" href="https://leafletjs.com/">Leaflet</a target="_blank" rel="noopener"> — biblioteca del mapa (BSD).</li>
+        </ul>
+
+        <h3>Bibliografía consultada</h3>
+        <p class="note" style="text-align:left">Ninguna de estas fuentes da un retardo válido para dehesa extremeña: los estudios españoles son de pinares de Soria y los centroeuropeos de hayedos. Se usaron para acotar el orden de magnitud, no para fijar los valores.</p>
+        <ul>
+          <li><a target="_blank" rel="noopener" href="https://www.biorxiv.org/content/10.64898/2025.12.12.693895v1">Predicting porcini: a decade of sporocarp monitoring…</a target="_blank" rel="noopener"> (bioRxiv, <b>preprint sin revisión por pares</b>). 10 años de <i>Boletus edulis</i> en hayedo alemán. Ventana de 5 días previos; óptimo térmico 13,2 °C.</li>
+          <li><a target="_blank" rel="noopener" href="https://doi.org/10.1093/forestry/cpac031">Domínguez-Núñez &amp; Oliet (2023), <i>Management of mushroom resources in Spanish forests: a review</i></a target="_blank" rel="noopener">, Forestry 96(2):135–154. Revisión de referencia para factores, inventario y modelos españoles.</li>
+          <li><a target="_blank" rel="noopener" href="https://www.researchgate.net/publication/320868761_Effect_of_climatic_and_soil_moisture_conditions_on_mushroom_productivity_and_related_ecosystem_services_in_Mediterranean_pine_stands_facing_climate_change">Effect of climatic and soil moisture conditions on mushroom productivity…</a target="_blank" rel="noopener"> (Agricultural and Forest Meteorology, 2018). Pinares mediterráneos: la precipitación actúa con un mes de retraso.</li>
+          <li><a target="_blank" rel="noopener" href="https://www.researchgate.net/publication/249234081_Effects_of_temperature_and_rainfall_on_fruiting_of_macrofungi_in_oak_forests_of_the_Mediterranean_area">Effects of temperature and rainfall on fruiting of macrofungi in oak forests of the Mediterranean area</a target="_blank" rel="noopener">. Encinares: el agua del suelo es el motor principal.</li>
+          <li><a target="_blank" rel="noopener" href="https://doi.org/10.3390/su16135656">Martínez-Rodrigo et al. (2024), <i>Assessment of Mycological Possibility Using Machine Learning Models</i></a target="_blank" rel="noopener">, Sustainability 16:5656. <i>Lactarius deliciosus</i> en <i>Pinus pinaster</i> de Soria; las heladas de diciembre cortan la producción.</li>
+          <li><a target="_blank" rel="noopener" href="https://www.sciencedirect.com/science/article/abs/pii/S1754504823000922">Tracing the spatial extent and lag time of carbon transfer from Picea abies to ectomycorrhizal fungi</a target="_blank" rel="noopener">. El flujo de carbono al carpóforo culmina 17–21 días después de la fotosíntesis.</li>
+          <li>Para <i>Amanita caesarea</i> no se encontró ningún estudio con un retardo cuantificado; solo fuentes divulgativas que hablan de 15–20 días tras las lluvias.</li>
+        </ul>
       </div>
     </div>
     <p class="note">Estimación orientativa. No sustituye la identificación experta; respeta la normativa de recolección. Datos: Open-Meteo, OpenStreetMap.</p>
@@ -125,17 +410,79 @@ const mean = a => a.reduce((s,v)=>s+v,0)/a.length;
 const sum = a => a.reduce((s,v)=>s+v,0);
 const trap = (x,a,b,c,d)=> x<=a||x>=d ? 0 : x<b ? (x-a)/(b-a) : x<=c ? 1 : (d-x)/(d-c);
 
+// Castigo por helada: rampa continua (sin saltos) sobre la T. mínima de los últimos 7 días
+const frostRamp = (lo,hi) => t => t<=lo ? 0.25 : t>=hi ? 1 : 0.25 + 0.75*(t-lo)/(hi-lo);
 const SPECIES = {
   boletus:  { title:'Boletus', sub:'edulis / aereus / pinophilus…', color:'#8b5a2b',
-    rain:[4,18,60,120], tmean:[3,9,18,23], soilT:[5,9,17,22], soilM:[0.10,0.18,0.38,0.50], gap:[0,2,10,20],
-    frostPenalty:t=> t<-1?0.3 : t<2?0.6 : t<5?0.9 : 1,
+    lag:8, // días entre el disparo y la seta visible (hipótesis; ver pestaña Método)
+    rainTrig:[10,35,90,200], tmean:[3,9,18,23], soilT:[5,9,17,22], soilM:[0.12,0.24,0.42,0.55],
+    ph:[4,4.8,6.8,7.8], clay:[-1,0,32,50], tmax:[0,10,19,26], aspect:[-3,1,1.5,2], // boletus: prefiere umbría
+    frostPenalty:frostRamp(-5,0),
     season:[0.5,0.3,0.2,0.7,0.7,0.4,0.4,0.4,1,1,1,0.6] },
   caesarea: { title:'Amanita caesarea', sub:'amanita de los césares / oronja', color:'#e07b00',
-    rain:[8,25,70,130], tmean:[11,16,24,28], soilT:[11,15,23,27], soilM:[0.10,0.16,0.35,0.50], gap:[0,3,12,22],
-    frostPenalty:t=> t<2?0.1 : t<7?0.4 : t<10?0.8 : 1,
-    season:[0,0,0,0,0,0.2,0.5,0.9,1,1,0.7,0.2] }
+    lag:12,
+    rainTrig:[12,40,100,210], tmean:[11,16,24,28], soilT:[11,15,23,27], soilM:[0.12,0.22,0.40,0.55],
+    ph:[4.2,5,6.5,7.3], clay:[-1,0,30,48], tmax:[0,15,27,33], aspect:[-2,-1.5,-1,3], // caesarea: termófila, prefiere solana
+    frostPenalty:frostRamp(-3,2),
+    season:[0,0,0,0,0,0.2,0.5,0.9,1,1,0.7,0.2] },
+  niscalo:  { title:'Níscalo', sub:'Lactarius deliciosus · asociado a pinos', color:'#c23b22',
+    lag:10,
+    rainTrig:[10,35,95,205], tmean:[3,8,16,21], soilT:[4,8,15,20], soilM:[0.12,0.24,0.42,0.55],
+    ph:[4.5,5.2,7.5,8.2], clay:[-1,0,35,50], tmax:[0,8,18,25], aspect:[-3,0,1.5,2], // níscalo: tolera más suelos; leve preferencia por umbría
+    frostPenalty:frostRamp(-7,-1),
+    season:[0.1,0,0,0.05,0.1,0,0.05,0.2,0.7,1,1,0.5] }
 };
-const WEIGHTS = { rain:3, tmean:2, soilT:2, soilM:1.5, gap:1.5 };
+// AGUA: factor limitante (ley del mínimo). Sin agua no hay seta, por bueno que sea el resto,
+// así que entra como multiplicador aparte y no se puede compensar con pH ni temperatura.
+const WATER = { rainTrig:3, soilM:2 };
+// Crecimiento y sitio: sí se compensan entre sí.
+const WEIGHTS = { tmean:2, tmax:1.5, soilT:2, ph:2, clay:1, aspect:1 };
+const FACTOR_KEYS = [...Object.keys(WATER), ...Object.keys(WEIGHTS)];
+
+// Hábitat según CORINE Land Cover (código de 3 cifras): multiplicador por especie. Ambas son micorrícicas: sin árbol hospedador no hay seta.
+const CLC_LABEL = { 311:'bosque de frondosas', 312:'bosque de coníferas', 313:'bosque mixto', 244:'dehesa / sistema agroforestal',
+  323:'vegetación esclerófila (monte mediterráneo)', 324:'matorral-bosque en transición', 321:'pastizal natural', 322:'brezal / matorral' };
+const clcLabel = c => CLC_LABEL[c] || (c<200?'zona urbana/artificial': c<300?'cultivos': c>=500?'agua': 'terreno sin arbolado');
+const clcSummary = cs => [...new Set(cs)].map(clcLabel).join(' / ');
+// Factor de una sola celda. Los valores son suaves a propósito: CORINE tiene ~100 m de resolución
+// y en dehesa cambia de clase cada pocos cientos de metros, así que no puede decidir un castigo
+// de 10× por sí solo. Solo el agua anula de verdad.
+function habitatCell(k, c) {
+  if (c>=500) return 0.15;
+  if (k==='niscalo') return [312,313].includes(c) ? 1 : [323,324].includes(c) ? 0.7 : [311,244,322].includes(c) ? 0.5 : 0.45; // necesita pinos
+  if ([311,313,244].includes(c)) return 1;
+  if (c===312) return k==='boletus' ? 1 : 0.7;
+  if ([323,324].includes(c)) return 0.9;
+  if (c===322) return 0.7;
+  if (c===321) return 0.6;
+  if (c>=200 && c<300) return 0.5;
+  return 0.45; // urbano/artificial u otra clase: un píxel suelto no debe hundir el índice
+}
+// Se muestrea el punto y su entorno (~300 m) y se promedia: en un mosaico de dehesa, una sola
+// celda no representa dónde buscas realmente.
+const habitatFactor = (k, cs) => mean(cs.map(c => habitatCell(k, c)));
+
+// ---------- Dibujos de setas ----------
+const ICON = {
+  boletus: `<svg viewBox="0 0 64 64" aria-label="Boletus"><path d="M23 38c-5 12-3 21 9 21s14-9 9-21z" fill="#f1e4c3" stroke="#cdb98a" stroke-width="1.5"/>
+    <path d="M27 40c-2 8-1 14 3 16" fill="none" stroke="#e0cfa3" stroke-width="2" stroke-linecap="round"/>
+    <ellipse cx="32" cy="36" rx="25" ry="5" fill="#e6d28f"/>
+    <path d="M6 35C6 17 20 7 32 7s26 10 26 28c0 3-52 3-52 0z" fill="#8b5a2b"/>
+    <path d="M13 26C16 17 24 12 32 12" fill="none" stroke="#b7803f" stroke-width="3" stroke-linecap="round"/></svg>`,
+  caesarea: `<svg viewBox="0 0 64 64" aria-label="Amanita caesarea"><path d="M25 38h14l2 17H23z" fill="#f6c843" stroke="#d9a91f" stroke-width="1.5"/>
+    <path d="M24 44c5 4 11 4 16 0" fill="none" stroke="#d9a91f" stroke-width="2"/>
+    <path d="M19 50c-2 10 6 12 13 12s15-2 13-12c-4 5-22 5-26 0z" fill="#fff" stroke="#d9d4c7" stroke-width="1.5"/>
+    <ellipse cx="32" cy="37" rx="25" ry="4.5" fill="#f6c843"/>
+    <path d="M6 36C6 19 19 9 32 9s26 10 26 27c0 3-52 3-52 0z" fill="#e8731a"/>
+    <path d="M14 27C17 19 24 14 32 14" fill="none" stroke="#f59a4a" stroke-width="3" stroke-linecap="round"/></svg>`,
+  niscalo: `<svg viewBox="0 0 64 64" aria-label="Níscalo"><path d="M24 40h16l1 16c0 3-4 5-9 5s-9-2-9-5z" fill="#f2b277" stroke="#d98b4a" stroke-width="1.5"/>
+    <ellipse cx="32" cy="38" rx="26" ry="5" fill="#e8a05a"/>
+    <path d="M5 37C5 21 18 11 32 11s27 10 27 26c0 3-54 3-54 0z" fill="#d2541b"/>
+    <path d="M12 35C13 24 21 17 32 17s19 7 20 18" fill="none" stroke="#a83a10" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M20 34C21 28 26 24 32 24s11 4 12 10" fill="none" stroke="#e57a3a" stroke-width="2.5" stroke-linecap="round"/></svg>`
+};
+document.getElementById('logo').innerHTML = ICON.boletus;
+document.getElementById('aboutIco').innerHTML = ICON.caesarea;
 
 // ---------- Pestañas ----------
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
@@ -145,11 +492,23 @@ document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
 
 // ---------- Mapa ----------
 const map = L.map('map').setView([DEFAULT.lat, DEFAULT.lon], 11);
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:18, attribution:'© OpenStreetMap' }).addTo(map);
+const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'© OpenStreetMap' });
+const pnoa = L.tileLayer('https://www.ign.es/wmts/pnoa-ma?service=WMTS&request=GetTile&version=1.0.0&layer=OI.OrthoimageCoverage&style=default&tilematrixset=GoogleMapsCompatible&format=image/jpeg&tilematrix={z}&tilerow={y}&tilecol={x}',
+  { maxZoom:19, attribution:'PNOA © Instituto Geográfico Nacional (CC-BY 4.0)' });
+const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  { maxZoom:19, attribution:'Imágenes © Esri, Maxar, Earthstar Geographics' });
+const topo = L.tileLayer('https://tile.opentopomap.org/{z}/{x}/{y}.png',
+  { maxZoom:17, attribution:'© OpenStreetMap, SRTM | © OpenTopoMap (CC-BY-SA)' });
+const BASES = { 'Mapa': osm, 'Satélite (IGN, España)': pnoa, 'Satélite (Esri, mundial)': esri, 'Relieve (curvas de nivel)': topo };
+const savedBase = localStorage.getItem('setas-base');
+(BASES[savedBase] || osm).addTo(map);
+L.control.layers(BASES, null, { position:'topright' }).addTo(map);
+map.on('baselayerchange', e => { try { localStorage.setItem('setas-base', e.name); } catch(_) {} });
 const marker = L.marker([DEFAULT.lat, DEFAULT.lon], { draggable:true }).addTo(map);
 map.on('click', e => select(e.latlng.lat, e.latlng.lng));
 marker.on('dragend', () => { const p = marker.getLatLng(); select(p.lat, p.lng); });
 window.addEventListener('resize', () => map.invalidateSize());
+window.addEventListener('load', () => { map.invalidateSize(); setTimeout(() => map.invalidateSize(), 400); });
 
 document.getElementById('go').onclick = async () => {
   const q = document.getElementById('q').value.trim(); if(!q) return;
@@ -167,47 +526,187 @@ document.getElementById('loc').onclick = () => navigator.geolocation.getCurrentP
 function setStatus(t){ document.getElementById('status').textContent = t; }
 
 // ---------- Datos ----------
+let selectId = 0, current = null, currentTerrain = null; // punto seleccionado y su terreno (para sitios guardados e historial)
+function setProvisional(on) {
+  document.getElementById('provisional').hidden = !on;
+  document.body.classList.toggle('terrain-loading', on);
+}
 async function select(lat, lon, name) {
   marker.setLatLng([lat, lon]);
+  selectId++; // invalida terrenos pendientes de una selección anterior
+  current = { lat, lon, name }; currentTerrain = null;
+  document.getElementById('sitioNombre').value = name || '';
+  resetHist();
   setStatus('Consultando datos meteorológicos…');
   const url = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+
-    '&daily=precipitation_sum,temperature_2m_max,temperature_2m_min,temperature_2m_mean'+
-    '&hourly=soil_temperature_6cm,soil_moisture_3_9cm'+
+    '&daily=precipitation_sum,temperature_2m_max,temperature_2m_min,temperature_2m_mean,et0_fao_evapotranspiration'+
+    '&hourly=soil_temperature_6cm,soil_moisture_3_9cm,temperature_2m'+
     '&past_days='+PAST+'&forecast_days='+FUT+'&timezone=auto';
   try {
     const r = await fetch(url); if(!r.ok) throw new Error(r.status);
     const d = await r.json();
-    const S = series(d);
-    render(S, d);
+    const S = series(d); extendForecast(S);
+    S.terrain = {};
+    render(S, d); // el tiempo se muestra ya; el terreno se añade cuando llegue
     setStatus((name||`${lat.toFixed(4)}, ${lon.toFixed(4)}`)+` · altitud ${Math.round(d.elevation)} m · ${new Date().toLocaleDateString('es-ES')}`);
-  } catch(e) { setStatus('Error al consultar Open-Meteo: '+e.message); }
+    document.getElementById('terreno').innerHTML = '<b>Terreno</b><p class="note">Consultando suelo…</p>';
+    const mine = ++selectId;
+    setProvisional(true);
+    const terrain = await fetchTerrain(lat, lon);
+    if (mine === selectId) { S.terrain = terrain; currentTerrain = terrain; render(S, d); setProvisional(false); } // ignora respuestas de una selección anterior
+  } catch(e) { setProvisional(false); setStatus('Error al consultar Open-Meteo: '+e.message); }
 }
 
-function series(d) {
+// Terreno: SoilGrids (pH, arcilla, arena, limo, carbono) + OSM/Overpass (bosque). Si fallan, se ignoran.
+const fetchT = (url, opts={}) => fetch(url, { ...opts, signal: AbortSignal.timeout(12000) }); // evita esperas infinitas
+// Suelo (SoilGrids): rellena pH, arcilla, arena, limo y carbono en t. Nunca falla: si el servicio no responde, deja t como está.
+function fetchSoil(lat, lon, t) {
+  return fetchT('https://rest.isric.org/soilgrids/v2.0/properties/query?lon='+lon+'&lat='+lat+
+      '&property=phh2o&property=clay&property=sand&property=silt&property=soc&depth=0-5cm&depth=5-15cm&value=mean')
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(j => { for (const l of j.properties.layers) {
+        const v = l.depths.map(x=>x.values.mean).filter(x=>x!=null);
+        if (!v.length) continue;
+        const val = mean(v)/l.unit_measure.d_factor;
+        if (l.name==='phh2o') t.ph = val; else if (l.name==='clay') t.clay = val;
+        else if (l.name==='sand') t.sand = val; else if (l.name==='silt') t.silt = val; else if (l.name==='soc') t.soc = val; } })
+    .catch(() => {});
+}
+// Hábitat (CORINE Land Cover): el punto y 4 vecinos a ~300 m. Devuelve la lista de códigos.
+async function fetchClcArea(lat, lon) {
+  const d = 0.0027, dl = d/Math.cos(lat*Math.PI/180);
+  const pts = [[lat,lon], [lat+d,lon], [lat-d,lon], [lat,lon+dl], [lat,lon-dl]];
+  const cs = (await Promise.all(pts.map(([a,b]) => fetchClc(a,b)))).filter(c => c != null);
+  return cs.length ? cs : null;
+}
+function fetchClc(lat, lon) {
+  return fetchT('https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC2018_WM/MapServer/identify?geometry='+lon+','+lat+
+      '&geometryType=esriGeometryPoint&sr=4326&layers=all&tolerance=1&mapExtent='+[lon-.05,lat-.05,lon+.05,lat+.05].join(',')+'&imageDisplay=400,400,96&returnGeometry=false&f=json')
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(j => { const v = j.results.find(x => x.attributes && x.attributes.Code_18); return v ? +v.attributes.Code_18 : null; })
+    .catch(() => null);
+}
+// Orientación y pendiente a partir de la altitud ~300 m al E, O, N y S del punto.
+function aspectFrom(lat, E, W, N, S, dLat, dLon) {
+  const m = 111320, dzdx = (E-W)/(2*dLon*m*Math.cos(lat*Math.PI/180)), dzdy = (N-S)/(2*dLat*m);
+  const slope = Math.atan(Math.hypot(dzdx,dzdy))*180/Math.PI;
+  const facing = (Math.atan2(-dzdx,-dzdy)*180/Math.PI+360)%360; // hacia dónde mira la ladera (0 = norte)
+  return { slope, facing, aspect: Math.cos(facing*Math.PI/180)*Math.min(1, slope/8) }; // aspect: +1 umbría clara, -1 solana clara
+}
+async function fetchTerrain(lat, lon) {
+  const t = {};
+  const soil = fetchSoil(lat, lon, t);
+  const q = '[out:json][timeout:20];(way(around:250,'+lat+','+lon+')["natural"~"wood|scrub|heath|grassland"];'+
+            'way(around:250,'+lat+','+lon+')["landuse"~"forest|farmland|meadow|orchard"];);out tags 20;';
+  const forest = fetchT('https://overpass-api.de/api/interpreter', { method:'POST', body:'data='+encodeURIComponent(q),
+      headers:{'Content-Type':'application/x-www-form-urlencoded'} })
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(j => { t.land = [...new Set(j.elements.map(e => e.tags.leaf_type==='broadleaved'?'bosque de hoja ancha' : e.tags.leaf_type==='needleleaved'?'bosque de coníferas' :
+        e.tags.natural==='wood'||e.tags.landuse==='forest'?'bosque' : e.tags.natural==='scrub'?'matorral' : e.tags.natural==='heath'?'brezal' :
+        e.tags.natural==='grassland'||e.tags.landuse==='meadow'?'pastizal' : e.tags.landuse==='farmland'?'cultivo' : 'frutales'))]; })
+    .catch(() => {});
+  // Orientación y pendiente: altitud en el centro y a ~300 m al E, O, N y S
+  const dLat = 0.003, dLon = 0.003/Math.cos(lat*Math.PI/180);
+  const elev = fetchT('https://api.open-meteo.com/v1/elevation?latitude='+[lat,lat,lat,lat+dLat,lat-dLat].join(',')+
+      '&longitude='+[lon,lon+dLon,lon-dLon,lon,lon].join(','))
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(j => { const [,E,W,N,S] = j.elevation; Object.assign(t, aspectFrom(lat, E, W, N, S, dLat, dLon)); })
+    .catch(() => {});
+  const clc = fetchClcArea(lat, lon).then(cs => { if (cs) t.clc = cs; });
+  await Promise.all([soil, forest, elev, clc]);
+  return t;
+}
+const compass = a => ['N','NE','E','SE','S','SO','O','NO'][Math.round(a/45)%8];
+const textura = t => t.clay==null ? '' : t.clay>=35 ? 'arcilloso' : t.sand>=60 ? 'arenoso' : t.sand>=40 ? 'franco-arenoso' : 'franco';
+const phTxt = p => p<5.5 ? 'ácido' : p<6.6 ? 'ligeramente ácido' : p<7.4 ? 'neutro' : 'calizo/alcalino';
+
+// keys: nombres de las variables de suelo (el pronóstico y el histórico ERA5 las llaman distinto)
+function series(d, keys = { st:'soil_temperature_6cm', sm:'soil_moisture_3_9cm' }) {
   const dayAvg = key => d.daily.time.map((_,i)=>{
     const v = d.hourly[key].slice(i*24,i*24+24).filter(x=>x!=null); return v.length?mean(v):null; });
+  // Temperatura media de día (8–20 h) y de noche (0–7 h y 21–23 h) a partir de la serie horaria, si existe
+  const th = d.hourly.temperature_2m, hrsAvg = (i, hrs) => { if (!th) return null;
+    const v = hrs.map(h => th[i*24+h]).filter(x => x != null); return v.length ? mean(v) : null; };
+  const DIA = [8,9,10,11,12,13,14,15,16,17,18,19,20], NOCHE = [0,1,2,3,4,5,6,7,21,22,23];
   return { time:d.daily.time, P:d.daily.precipitation_sum, Tm:d.daily.temperature_2m_mean,
-           Tn:d.daily.temperature_2m_min, Tx:d.daily.temperature_2m_max,
-           ST:dayAvg('soil_temperature_6cm'), SM:dayAvg('soil_moisture_3_9cm') };
+           Tn:d.daily.temperature_2m_min, Tx:d.daily.temperature_2m_max, ET:d.daily.et0_fao_evapotranspiration,
+           Td:d.daily.time.map((_,i) => hrsAvg(i, DIA)), Tnoche:d.daily.time.map((_,i) => hrsAvg(i, NOCHE)),
+           ST:dayAvg(keys.st), SM:dayAvg(keys.sm) };
 }
 
-// Puntuación de ambas especies para el día i (mirando hacia atrás desde i)
+// Con retardo, los días posteriores al final de la previsión ya están determinados por la lluvia
+// que ha caído. Se prolonga la serie suponiendo que NO llueve más y que la temperatura se mantiene.
+const MAXLAG = Math.max(...Object.values(SPECIES).map(s => s.lag));
+function extendForecast(S) {
+  S.nReal = S.time.length; // último día con previsión real
+  const last = S.nReal - 1, base = new Date(S.time[last] + 'T12:00:00Z');
+  const t3 = a => { const v = [a[last-2], a[last-1], a[last]].filter(x => x != null); return v.length ? mean(v) : null; };
+  const Tm = t3(S.Tm), Tn = t3(S.Tn), Tx = t3(S.Tx), Td = t3(S.Td), Tno = t3(S.Tnoche), ST = t3(S.ST), ET = t3(S.ET);
+  let sm = S.SM[last];
+  for (let k = 1; k <= MAXLAG; k++) {
+    S.time.push(new Date(base.getTime() + k*864e5).toISOString().slice(0,10));
+    S.P.push(0); S.ET.push(ET); S.Tm.push(Tm); S.Tn.push(Tn); S.Tx.push(Tx);
+    S.Td.push(Td); S.Tnoche.push(Tno); S.ST.push(ST);
+    sm = sm == null ? null : sm*0.96; S.SM.push(sm); // sin lluvia el suelo se seca
+  }
+}
+
+// Lluvia disparadora. Una ventana de bordes duros hace caer el índice de golpe cuando un día de
+// lluvia fuerte sale de ella, así que cada día pesa según lo cerca que esté del retardo óptimo:
+// el peso sube hasta `lag` días atrás y luego decae con una cola larga, como una brotada que se
+// va agotando. El total se escala a "equivalente de 10 días" para que los umbrales no cambien.
+function triggerRain(S, i, lag) {
+  const sube = lag, baja = Math.round(lag*1.5); // sube hasta el retardo y decae con cola larga
+  let acc = 0, wsum = 0;
+  for (let d = 0; d <= lag + baja; d++) {
+    const w = d < lag ? d/sube : 1 - (d-lag)/(baja+1);
+    if (w <= 0) continue;
+    wsum += w;
+    const k = i - d;
+    if (k >= 0 && S.P[k] != null) acc += S.P[k]*w;
+  }
+  return wsum ? acc*10/wsum : 0;
+}
+
+// El suelo tiene que haberse mantenido húmedo DESDE que se mojó hasta hoy: si se secó por el
+// camino, la brotada se aborta. Se busca el día más húmedo de la ventana disparadora y se toma
+// el mínimo desde ahí hasta hoy. Así no cuenta la sequía anterior a la lluvia (de eso ya se
+// encarga el retardo), pero sí la que viene después.
+function soilSustained(S, i, lag) {
+  const a = Math.max(0, i - lag - 10);
+  let peak = -1;
+  for (let k = a; k <= i; k++) if (S.SM[k] != null && (peak < 0 || S.SM[k] > S.SM[peak])) peak = k;
+  if (peak < 0) return null;
+  let m = Infinity;
+  for (let k = peak; k <= i; k++) if (S.SM[k] != null) m = Math.min(m, S.SM[k]);
+  return isFinite(m) ? m : null;
+}
+
+// Índice de APARICIÓN para el día i: el agua que disparó la fructificación se mira con
+// retardo (s.lag días, el tiempo que tarda la seta en hacerse visible); la temperatura y la
+// humedad del suelo se miran ahora, porque es cuando el carpóforo está creciendo.
 function scoreAt(S, i) {
-  const win = (arr,n) => arr.slice(Math.max(0,i-n+1), i+1).filter(x=>x!=null);
-  let gap = 30;
-  for (let k=i;k>=0;k--) if (S.P[k]>=8) { gap = i-k; break; }
+  const win = (arr,n,off=0) => arr.slice(Math.max(0,i-off-n+1), Math.max(0,i-off+1)).filter(x=>x!=null);
   const tmin7 = Math.min(...win(S.Tn,7));
-  const vals = { rain:sum(win(S.P,14)), tmean:mean(win(S.Tm,7)), soilT:mean(win(S.ST,7)), soilM:mean(win(S.SM,3)), gap };
+  const crece = { tmean:mean(win(S.Tm,5)), tmax:mean(win(S.Tx,5)), soilT:mean(win(S.ST,5)),
+                  ph:S.terrain?.ph, clay:S.terrain?.clay, aspect:S.terrain?.aspect };
   const month = new Date(S.time[i]).getMonth();
-  const out = {};
+  const out = {}; let vals = null;
   for (const [k,s] of Object.entries(SPECIES)) {
-    const f = {}; let lw=0, w=0;
-    for (const key of Object.keys(WEIGHTS)) {
-      f[key] = isNaN(vals[key]) ? 0.5 : trap(vals[key], ...s[key]);
-      lw += WEIGHTS[key]*Math.log(Math.max(f[key],0.05)); w += WEIGHTS[key];
-    }
+    const v = { ...crece, rainTrig:triggerRain(S, i, s.lag), soilM:soilSustained(S, i, s.lag) };
+    const f = {};
+    const gm = pesos => { let lw=0, w=0; // media geométrica ponderada de un bloque
+      for (const key of Object.keys(pesos)) {
+        if (v[key]==null) continue; // sin dato de terreno: el factor no cuenta
+        f[key] = isNaN(v[key]) ? 0.5 : trap(v[key], ...s[key]);
+        lw += pesos[key]*Math.log(Math.max(f[key],0.05)); w += pesos[key];
+      }
+      return w ? Math.exp(lw/w) : 1; };
+    const agua = gm(WATER), resto = gm(WEIGHTS);
     const frost = s.frostPenalty(tmin7), season = s.season[month];
-    out[k] = { score:Math.round(100*Math.exp(lw/w)*frost*season), f, frost, season };
+    const habitat = S.terrain?.clc?.length ? habitatFactor(k, S.terrain.clc) : null; // null = sin dato, no penaliza
+    out[k] = { score:Math.round(100*agua*resto*frost*season*(habitat ?? 1)), f, agua, frost, season, habitat, vals:v };
+    if (!vals) vals = v;
   }
   return { vals, tmin7, out };
 }
@@ -215,18 +714,31 @@ function scoreAt(S, i) {
 // ---------- Presentación ----------
 const color = s => s>=60?'g' : s>=30?'a' : 'r';
 const COLORS = { g:'var(--green)', a:'var(--amber)', r:'var(--red)' };
-const LABEL = { g:'Probabilidad alta', a:'Probabilidad media', r:'Probabilidad baja' };
+const LABEL = { g:'Favorabilidad alta', a:'Favorabilidad media', r:'Favorabilidad baja' };
 const dayName = (t,opts) => new Date(t).toLocaleDateString('es-ES', opts||{weekday:'short',day:'numeric',month:'short'});
 
 function render(S, d) {
   const { vals, tmin7, out } = scoreAt(S, TODAY);
-  const names = { rain:'Lluvia 14 d', tmean:'T. media 7 d', soilT:'T. suelo 7 d', soilM:'Humedad suelo', gap:'Días desde lluvia ≥8 mm' };
-  const fmt = { rain:v=>v.toFixed(0)+' mm', tmean:v=>v.toFixed(1)+' °C', soilT:v=>v.toFixed(1)+' °C', soilM:v=>(v*100).toFixed(0)+' %', gap:v=>v+' d' };
+  const names = { rainTrig:'Lluvia disparadora', tmean:'T. media 5 d', tmax:'T. máx. 5 d', soilT:'T. suelo 5 d', soilM:'Humedad del suelo (sostenida)', ph:'pH del suelo', clay:'Arcilla', aspect:'Orientación' };
+  const nameOf = (key, s) => key==='rainTrig' ? `Lluvia disparadora (~${s.lag} d antes)` : names[key];
+  const fmt = { rainTrig:v=>v.toFixed(0)+' mm', tmean:v=>v.toFixed(1)+' °C', tmax:v=>v.toFixed(1)+' °C', soilT:v=>v.toFixed(1)+' °C', soilM:v=>(v*100).toFixed(0)+' %', ph:v=>v.toFixed(1), clay:v=>v.toFixed(0)+' %',
+    aspect:v=>v>0.25?'umbría':v<-0.25?'solana':'neutra / llano' };
+  const T = S.terrain || {};
+  document.getElementById('terreno').innerHTML = T.ph==null && !T.land?.length ? '<b>Terreno</b><p class="note">Sin datos de terreno para este punto (el servicio no respondió o no hay cobertura). El cálculo usa solo el tiempo.</p>' :
+    `<b>Terreno</b>
+     <div class="factor"><span>pH</span><span>${T.ph==null?'—':T.ph.toFixed(1)+' · '+phTxt(T.ph)}</span></div>
+     <div class="factor"><span>Textura</span><span>${T.clay==null?'—':textura(T)+` (arcilla ${T.clay.toFixed(0)} %, arena ${T.sand.toFixed(0)} %, limo ${T.silt.toFixed(0)} %)`}</span></div>
+     <div class="factor"><span>Materia orgánica</span><span>${T.soc==null?'—':T.soc.toFixed(0)+' g/kg'}</span></div>
+     <div class="factor"><span>Relieve</span><span>${T.slope==null?'—':`ladera al ${compass(T.facing)}, pendiente ${T.slope.toFixed(0)}°`+(T.slope<3?' (casi llano)':'')}</span></div>
+     <div class="factor"><span>Hábitat (CORINE, 5 puntos)</span><span>${T.clc?.length?clcSummary(T.clc):'—'}</span></div>
+     <div class="factor"><span>Cobertura cercana (OSM)</span><span>${T.land?.length?T.land.join(', '):'sin datos'}</span></div>
+     <p class="note">Suelo: SoilGrids (resolución ~250 m, media 0–15 cm). Cobertura: OpenStreetMap, a menudo incompleta en dehesa; no afecta a la puntuación.</p>`;
   const fcol = f => COLORS[f>.66?'g':f>.33?'a':'r'];
   for (const [k,s] of Object.entries(SPECIES)) {
     const o = out[k], c = color(o.score);
     document.getElementById(k).innerHTML = `
       <div class="species">
+        <div class="ico">${ICON[k]}</div>
         <div class="light"><i class="r ${c==='r'?'on':''}"></i><i class="a ${c==='a'?'on':''}"></i><i class="g ${c==='g'?'on':''}"></i></div>
         <div style="flex:1;min-width:0">
           <h2>${s.title}<em>${s.sub}</em></h2>
@@ -234,26 +746,31 @@ function render(S, d) {
         </div>
       </div>
       <div style="margin-top:10px">
-        ${Object.keys(WEIGHTS).map(key=>`
-          <div class="factor"><span>${names[key]}</span><span>${isNaN(vals[key])?'—':fmt[key](vals[key])}</span></div>
+        ${FACTOR_KEYS.filter(key=>o.vals[key]!=null).map(key=>`
+          <div class="factor"><span>${nameOf(key,s)}</span><span>${isNaN(o.vals[key])?'—':fmt[key](o.vals[key])}</span></div>
           <div class="bar"><b style="width:${Math.round(o.f[key]*100)}%;background:${fcol(o.f[key])}"></b></div>`).join('')}
+        <div class="factor"><span><b>Agua</b> (factor limitante)</span><span><b>×${o.agua.toFixed(2)}</b></span></div>
         <div class="factor"><span>Época del año</span><span>×${o.season.toFixed(1)}</span></div>
+        ${o.habitat==null?'':`<div class="factor"><span>Hábitat (${clcSummary(T.clc)})</span><span>×${o.habitat.toFixed(2)}</span></div>`}
         <div class="factor"><span>Helada (T. mín. 7 d: ${tmin7.toFixed(1)} °C)</span><span>×${o.frost.toFixed(1)}</span></div>
       </div>`;
   }
 
   let h = '<tr><th>Día</th><th>Lluvia</th><th>Tmín</th><th>Tmáx</th><th>Suelo</th></tr>';
-  for (let i=TODAY-6;i<S.time.length;i++) {
+  for (let i=TODAY-6;i<(S.nReal ?? S.time.length);i++) {
     h += `<tr class="${i>TODAY?'fc':''}"><td>${dayName(S.time[i])}${i===TODAY?' (hoy)':''}</td><td>${S.P[i]==null?'—':S.P[i].toFixed(1)+' mm'}</td><td>${S.Tn[i].toFixed(0)}°</td><td>${S.Tx[i].toFixed(0)}°</td><td>${S.ST[i]==null?'—':S.ST[i].toFixed(1)+'°'}</td></tr>`;
   }
   document.getElementById('days').innerHTML = h;
   renderChart(S);
 }
 
+let chartS = null; // última serie dibujada, para redibujar al marcar/desmarcar las temperaturas
 function renderChart(S) {
-  const i0 = TODAY-14, n = S.time.length, i1 = n-1;
+  chartS = S;
+  const showT = document.getElementById('showT').checked && S.Td.some(v => v != null);
+  const i0 = TODAY-14, n = S.time.length, i1 = n-1, iF = (S.nReal ?? n) - 1; // iF = último día con previsión real
   const scores = {}; for (let i=i0;i<=i1;i++) scores[i] = scoreAt(S,i).out;
-  const W=640, H=320, L=34, R=10, T=10, B=44, pw=W-L-R, ph=H-T-B;
+  const W=640, H=320, L=34, R=showT ? 34 : 10, T=10, B=44, pw=W-L-R, ph=H-T-B;
   const x = i => L + (i-i0)/(i1-i0)*pw, y = v => T + ph*(1-v/100);
   let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">`;
   // bandas semáforo
@@ -268,6 +785,21 @@ function renderChart(S) {
     const bh = S.P[i]/maxP*ph*0.3;
     svg += `<rect x="${x(i)-bw/2}" y="${T+ph-bh}" width="${bw}" height="${bh}" fill="#6aa9e0" opacity=".7"><title>${dayName(S.time[i])}: ${S.P[i].toFixed(1)} mm</title></rect>`;
   }
+  // temperaturas medias de día y de noche (eje propio a la derecha, en °C)
+  if (showT) {
+    const vals = [...S.Td, ...S.Tnoche].slice(i0).filter(v => v != null);
+    const tLo = Math.floor((Math.min(...vals)-2)/5)*5, tHi = Math.ceil((Math.max(...vals)+2)/5)*5;
+    const ty = v => T + ph*(1-(v-tLo)/(tHi-tLo));
+    for (let t = tLo; t <= tHi; t += 5) svg += `<text x="${L+pw+4}" y="${ty(t)+4}" font-size="10" fill="#777">${t}°</text>`;
+    const tline = (arr, col) => { const seg = (a,b) => { let p=''; for (let i=a;i<=b;i++) if (arr[i] != null) p += `${x(i)},${ty(arr[i])} `; return p; };
+      return `<polyline points="${seg(i0,TODAY)}" fill="none" stroke="${col}" stroke-width="1.6" opacity=".9"/>
+              <polyline points="${seg(TODAY,iF)}" fill="none" stroke="${col}" stroke-width="1.6" stroke-dasharray="3 3" opacity=".9"/>
+              <polyline points="${seg(iF,i1)}" fill="none" stroke="${col}" stroke-width="1.6" stroke-dasharray="1 3" opacity=".5"/>`; };
+    svg += tline(S.Td, '#444') + tline(S.Tnoche, '#3b5bdb');
+  }
+  // zona de proyección (ya no hay previsión meteorológica: se supone que no llueve más)
+  if (iF < i1) svg += `<rect x="${x(iF)}" y="${T}" width="${pw-(x(iF)-L)}" height="${ph}" fill="#999" opacity=".10"/>
+    <text x="${(x(iF)+x(i1))/2}" y="${T+ph-4}" font-size="9" text-anchor="middle" fill="#666">sin más lluvia</text>`;
   // línea de hoy
   svg += `<line x1="${x(TODAY)}" x2="${x(TODAY)}" y1="${T}" y2="${T+ph}" stroke="#555" stroke-dasharray="3 3"/>
           <text x="${x(TODAY)+3}" y="${T+10}" font-size="10" fill="#555">hoy</text>`;
@@ -275,7 +807,8 @@ function renderChart(S) {
   for (const [k,s] of Object.entries(SPECIES)) {
     const pts = (a,b) => { let p=''; for (let i=a;i<=b;i++) p += `${x(i)},${y(scores[i][k].score)} `; return p; };
     svg += `<polyline points="${pts(i0,TODAY)}" fill="none" stroke="${s.color}" stroke-width="2.5"/>
-            <polyline points="${pts(TODAY,i1)}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-dasharray="6 4"/>`;
+            <polyline points="${pts(TODAY,iF)}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-dasharray="6 4"/>
+            <polyline points="${pts(iF,i1)}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-dasharray="2 4" opacity=".55"/>`;
     for (let i=i0;i<=i1;i++) svg += `<circle cx="${x(i)}" cy="${y(scores[i][k].score)}" r="3" fill="${s.color}"><title>${s.title} · ${dayName(S.time[i])}: ${scores[i][k].score}</title></circle>`;
   }
   // eje X
@@ -283,16 +816,147 @@ function renderChart(S) {
     const t = new Date(S.time[i]);
     svg += `<text x="${x(i)}" y="${H-24}" font-size="10" text-anchor="middle" fill="#777">${t.getDate()}/${t.getMonth()+1}</text>`;
   }
-  svg += `<text x="${L+pw/2}" y="${H-6}" font-size="10" text-anchor="middle" fill="#999">Barras: lluvia diaria (máx. ${maxP.toFixed(0)} mm)</text></svg>`;
-  document.getElementById('chart').innerHTML = svg;
+  svg += `<text x="${L+pw/2}" y="${H-6}" font-size="10" text-anchor="middle" fill="#999">Barras: lluvia diaria (máx. ${maxP.toFixed(0)} mm)</text>
+    <line class="cur" y1="${T}" y2="${T+ph}" stroke="#333" stroke-width="1" visibility="hidden"/>
+    ${Object.entries(SPECIES).map(([k,s]) => `<circle class="cd" data-k="${k}" r="6" fill="#fff" stroke="${s.color}" stroke-width="3" visibility="hidden"/>`).join('')}</svg>`;
+  const box = document.getElementById('chart');
+  box.innerHTML = svg + '<div class="tip" hidden></div>';
+
+  // Interacción: ratón o dedo sobre el gráfico muestran el día, los índices y la lluvia
+  const el = box.querySelector('svg'), tip = box.querySelector('.tip'), cur = el.querySelector('.cur'), dots = [...el.querySelectorAll('.cd')];
+  const show = ev => {
+    const r = el.getBoundingClientRect();
+    if (!r.width) return;
+    const sx = (ev.clientX - r.left) / r.width * W;
+    const i = Math.min(i1, Math.max(i0, Math.round(i0 + (sx - L) / pw * (i1 - i0))));
+    cur.setAttribute('x1', x(i)); cur.setAttribute('x2', x(i)); cur.setAttribute('visibility', 'visible');
+    dots.forEach(c => { const k = c.dataset.k; c.setAttribute('cx', x(i)); c.setAttribute('cy', y(scores[i][k].score)); c.setAttribute('visibility', 'visible'); });
+    const when = i < TODAY ? 'real' : i === TODAY ? 'hoy' : i <= iF ? 'previsión' : 'proyección · si no llueve más';
+    tip.innerHTML = `<b>${dayName(S.time[i], {weekday:'long', day:'numeric', month:'short'})}</b> <span class="when">${when}</span>` +
+      Object.entries(SPECIES).map(([k,s]) => { const sc = scores[i][k].score;
+        return `<div><span style="color:${s.color}">●</span> ${s.title}: <b style="color:${COLORS[color(sc)]}">${sc}</b>/100</div>`; }).join('') +
+      `<div>🌧 ${S.P[i]==null ? '—' : S.P[i].toFixed(1) + ' mm'}</div>` +
+      (S.Td[i] == null ? `<div>🌡 ${S.Tn[i].toFixed(0)}° / ${S.Tx[i].toFixed(0)}°</div>` :
+        `<div>☀ día <b>${S.Td[i].toFixed(0)}°</b> · 🌙 noche <b>${S.Tnoche[i].toFixed(0)}°</b></div><div class="when">mín ${S.Tn[i].toFixed(0)}° / máx ${S.Tx[i].toFixed(0)}°</div>`);
+    tip.hidden = false;
+    const px = x(i) / W * r.width, tw = tip.offsetWidth;
+    tip.style.left = Math.max(0, px + 14 + tw > r.width ? px - 14 - tw : px + 14) + 'px';
+  };
+  const hide = ev => { if (ev.pointerType !== 'mouse') return; // en táctil se queda hasta el siguiente toque
+    cur.setAttribute('visibility', 'hidden'); dots.forEach(c => c.setAttribute('visibility', 'hidden')); tip.hidden = true; };
+  el.addEventListener('pointermove', show); el.addEventListener('pointerdown', show);
+  el.addEventListener('pointerleave', hide); el.addEventListener('pointercancel', hide);
 
   let best = '';
   for (const [k,s] of Object.entries(SPECIES)) {
     let bi = TODAY; for (let i=TODAY;i<=i1;i++) if (scores[i][k].score > scores[bi][k].score) bi = i;
     const sc = scores[bi][k].score;
-    best += `<div class="best"><b style="color:${s.color}">${s.title}</b>: mejor día previsto ${dayName(S.time[bi],{weekday:'long',day:'numeric',month:'long'})} (${sc}/100, ${LABEL[color(sc)].toLowerCase()})</div>`;
+    best += `<div class="best"><b style="color:${s.color}">${s.title}</b>: mejor día previsto ${dayName(S.time[bi],{weekday:'long',day:'numeric',month:'long'})} (${sc}/100, ${LABEL[color(sc)].toLowerCase()})${bi > iF ? ' <span class="when">— proyección, si no llueve más</span>' : ''}</div>`;
   }
   document.getElementById('best').innerHTML = best;
+}
+
+document.getElementById('showT').onchange = () => { if (chartS) renderChart(chartS); };
+
+// ---------- Mis sitios (se guardan solo en este dispositivo) ----------
+const SITIOS_KEY = 'setas-sitios', MAX_SITIOS = 20;
+const loadSitios = () => { try { const a = JSON.parse(localStorage.getItem(SITIOS_KEY)); return Array.isArray(a) ? a : []; } catch(_) { return []; } };
+const saveSitios = a => { try { localStorage.setItem(SITIOS_KEY, JSON.stringify(a)); } catch(_) {} };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function renderSitios() {
+  const list = loadSitios();
+  document.getElementById('sitioLista').innerHTML = list.length ? list.map((s, i) =>
+    `<span class="chip"><button class="go" data-i="${i}" title="Ir a ${esc(s.name)}">📍 ${esc(s.name)}</button><button class="del" data-i="${i}" aria-label="Borrar ${esc(s.name)}">✕</button></span>`).join('')
+    : '<span class="note">Aún no tienes sitios guardados.</span>';
+}
+document.getElementById('sitioGuardar').onclick = () => {
+  if (!current) return;
+  const input = document.getElementById('sitioNombre');
+  const name = input.value.trim() || current.name || `${current.lat.toFixed(4)}, ${current.lon.toFixed(4)}`;
+  const list = loadSitios(), site = { name, lat:+current.lat.toFixed(5), lon:+current.lon.toFixed(5) };
+  const k = list.findIndex(s => Math.abs(s.lat-site.lat) < 0.0005 && Math.abs(s.lon-site.lon) < 0.0005); // mismo punto: renombra
+  if (k >= 0) list[k] = site; else if (list.length >= MAX_SITIOS) { setStatus(`Máximo ${MAX_SITIOS} sitios: borra alguno para guardar otro.`); return; } else list.push(site);
+  saveSitios(list); renderSitios(); current.name = name;
+};
+document.getElementById('sitioLista').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const list = loadSitios(), s = list[+b.dataset.i]; if (!s) return;
+  if (b.classList.contains('del')) { list.splice(+b.dataset.i, 1); saveSitios(list); renderSitios(); }
+  else { map.setView([s.lat, s.lon], Math.max(map.getZoom(), 11)); select(s.lat, s.lon, s.name); }
+};
+renderSitios();
+
+// ---------- Calendario histórico (otoño, 6 temporadas) ----------
+const HIST_SOIL = { st:'soil_temperature_0_to_7cm', sm:'soil_moisture_0_to_7cm' }; // nombres de variables en el archivo ERA5-Land
+const histCache = new Map(), histYearCache = new Map(); // por punto, y por punto+año: el pasado no cambia
+const seq = async (arr, fn) => { const out = []; for (const x of arr) out.push(await fn(x)); return out; };
+async function histFetch(url, opts) { // un reintento si la API responde 429 (demasiadas peticiones)
+  let r = await fetch(url, opts);
+  if (r.status === 429) { await new Promise(res => setTimeout(res, 2500)); r = await fetch(url, opts); }
+  return r;
+}
+document.getElementById('histSp').innerHTML = Object.entries(SPECIES).map(([k,s]) => `<option value="${k}">${s.title}</option>`).join('');
+document.getElementById('histGo').onclick = () => computeHist();
+document.getElementById('histSp').onchange = () => { const h = histCache.get(histKey()); if (h) renderHist(h); };
+const histKey = () => current ? current.lat.toFixed(3)+','+current.lon.toFixed(3) : '';
+function resetHist() {
+  document.getElementById('hist').innerHTML = '';
+  document.getElementById('histMsg').textContent = 'Pulsa «Calcular historial» para este punto.';
+  const h = histCache.get(histKey()); if (h) renderHist(h);
+}
+const dmy = t => { const d = new Date(t); return d.getDate()+'/'+(d.getMonth()+1); };
+async function computeHist() {
+  if (!current) return;
+  const key = histKey(), msg = document.getElementById('histMsg'), btn = document.getElementById('histGo');
+  if (histCache.has(key)) return renderHist(histCache.get(key));
+  const now = new Date(), Y = now.getFullYear(), lastAvail = new Date(now - 5*864e5).toISOString().slice(0,10); // el archivo llega con ~5 días de retraso
+  const terrain = currentTerrain || {}; // el terreno actual del punto; si aún no ha llegado se calcula solo con el tiempo
+  btn.disabled = true; msg.textContent = '⏳ Descargando 6 temporadas…';
+  const years = []; for (let y = Y; y >= Y-5; y--) years.push(y);
+  const tk = (terrain.ph != null ? 't' : 'n') + (terrain.clc != null ? 'c' : 'n'); // el resultado depende del terreno disponible
+  const rows = (await seq(years, async y => { // de uno en uno: la API limita las peticiones simultáneas (429)
+    const end = y === Y ? lastAvail : `${y}-12-31`; if (end < `${y}-08-01`) return null; // temporada actual aún sin empezar
+    const ck = key+'|'+y+'|'+tk; if (y !== Y && histYearCache.has(ck)) return histYearCache.get(ck); // el pasado no cambia
+    try {
+      const r = await histFetch('https://archive-api.open-meteo.com/v1/archive?latitude='+current.lat+'&longitude='+current.lon+'&start_date='+y+'-07-01&end_date='+end+
+        '&daily=precipitation_sum,temperature_2m_max,temperature_2m_min,temperature_2m_mean,et0_fao_evapotranspiration&hourly='+HIST_SOIL.st+','+HIST_SOIL.sm+'&timezone=auto',
+        { signal: AbortSignal.timeout(30000) });
+      if (!r.ok) throw new Error(r.status);
+      const S = series(await r.json(), HIST_SOIL); S.terrain = terrain;
+      const first = 31, last = S.P.reduce((m, v, i) => v != null ? i : m, 0); // 1 ago ... último día con dato
+      const weeks = []; // índice medio de cada semana y especie
+      for (let w0 = first; w0 <= last; w0 += 7) {
+        const acc = {}; let n = 0;
+        for (let i = w0; i < Math.min(w0+7, last+1); i++) { const o = scoreAt(S, i).out; for (const k in o) acc[k] = (acc[k]||0) + o[k].score; n++; }
+        weeks.push({ date:S.time[w0], sc:Object.fromEntries(Object.keys(acc).map(k => [k, Math.round(acc[k]/n)])) });
+      }
+      const row = { y, weeks }; if (y !== Y) histYearCache.set(ck, row);
+      return row;
+    } catch(e) { return { y, error:true, weeks:[] }; }
+  })).filter(Boolean);
+  btn.disabled = false;
+  if (rows.every(r => r.error)) { msg.textContent = '⚠ No se pudo descargar el histórico. Inténtalo de nuevo más tarde.'; return; }
+  const data = { rows, terrainOk: !!(terrain.ph != null || terrain.clc != null) };
+  if (!rows.some(r => r.error)) histCache.set(key, data); // si falló algún año, el siguiente intento solo repite ese año
+  renderHist(data);
+}
+function renderHist(data) {
+  const k = document.getElementById('histSp').value, rows = data.rows.filter(r => !r.error && r.weeks.length);
+  const nW = Math.max(...rows.map(r => r.weeks.length)), ref = rows.find(r => r.weeks.length === nW);
+  const bg = s => ({ g:'rgba(46,158,91,.6)', a:'rgba(240,163,10,.55)', r:'rgba(214,69,69,.35)' }[color(s)]);
+  const mean_ = [], thisW = new Date().toISOString().slice(0,10);
+  for (let w = 0; w < nW; w++) { const v = rows.map(r => r.weeks[w]?.sc[k]).filter(x => x != null); mean_.push(v.length ? Math.round(mean(v)) : null); }
+  const best = mean_.reduce((b, v, i) => v != null && (b < 0 || v > mean_[b]) ? i : b, -1);
+  let h = '<table class="hist"><tr><th>Año</th>' + ref.weeks.map(w => `<th>${dmy(w.date)}</th>`).join('') + '</tr>';
+  for (const r of rows) h += `<tr><th>${r.y}${r.y === new Date().getFullYear() ? '*' : ''}</th>` + Array.from({ length:nW }, (_, w) => {
+    const c = r.weeks[w]; return c ? `<td style="background:${bg(c.sc[k])}" title="${r.y}, semana del ${dmy(c.date)}: ${c.sc[k]}">${c.sc[k]}</td>` : '<td></td>'; }).join('') + '</tr>';
+  h += '<tr class="avg"><th>Media</th>' + mean_.map((v, i) => v == null ? '<td></td>' : `<td style="background:${bg(v)}${i === best ? ';outline:2px solid #333' : ''}">${v}</td>`).join('') + '</tr></table>';
+  document.getElementById('hist').innerHTML = h;
+  const failed = data.rows.filter(r => r.error).map(r => r.y);
+  document.getElementById('histMsg').innerHTML = (best >= 0 ? `Semana media más favorable de las temporadas con datos para <b>${SPECIES[k].title}</b>: la del <b>${dmy(ref.weeks[best].date)}</b> (índice ${mean_[best]}). ` : '') +
+    '* temporada en curso (hasta hace 5 días). Verde ≥ 60 · ámbar 30–59 · rojo &lt; 30; índice no calibrado.' +
+    (failed.length ? ` No se pudo descargar: ${failed.join(', ')}.` : '') +
+    (data.terrainOk ? '' : ' Terreno aún no disponible: calculado solo con el tiempo.');
 }
 
 select(DEFAULT.lat, DEFAULT.lon, DEFAULT.name);
