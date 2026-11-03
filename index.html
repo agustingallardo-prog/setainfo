@@ -191,7 +191,7 @@
         <p>El índice de un día estima la <b>aparición</b> de setas ese día, no si hace buen tiempo ese día. Separa dos cosas:</p>
         <p><b>1. El agua (factor limitante).</b> Sin agua no hay setas, por bueno que sea todo lo demás, así que este bloque entra como <b>multiplicador aparte</b> y no se puede compensar con un pH perfecto ni con la temperatura ideal. Lo forman tres cosas:</p>
         <ul>
-          <li><b>Lluvia disparadora</b> (peso 3): la lluvia que provoca la fructificación cayó días antes, porque el carpóforo tarda en formarse y hacerse visible. Cada día de lluvia pesa según lo lejos que quede del <b>retardo <i>L</i></b> de cada especie (boletus 8 d, níscalo 10 d, caesarea 12 d): el peso sube hasta <i>L</i> y luego decae con una cola larga, como una brotada que se va agotando. Lo ideal equivale a ~35–90 mm (por encima de ~200 mm se penaliza por encharcamiento). El umbral es alto a propósito: romper la sequía mediterránea de verano exige bastante agua, no un par de chubascos.</li>
+          <li><b>Lluvia disparadora</b> (peso 3): la lluvia que provoca la fructificación cayó días antes, porque el carpóforo tarda en formarse y hacerse visible. Cada día de lluvia pesa según lo lejos que quede del <b>retardo <i>L</i></b> de cada especie (boletus 8 d, níscalo 10 d, caesarea 12 d): el peso sube hasta <i>L</i> y luego decae con una cola larga, como una brotada que se va agotando. Lo ideal equivale a ~35–90 mm (por encima de ~200 mm se penaliza por encharcamiento). Ese umbral <b>se escala con lo seco que llegue el sitio</b>: en un suelo que ha bajado al 10 % buena parte del agua se gasta en rehidratar el terreno, mientras que en uno atlántico que no baja del 23 % hace falta bastante menos. Se mide con la humedad mínima de los últimos 60 días, que caracteriza el lugar y no salta de un día para otro. La tarjeta de cada especie indica el umbral que se está aplicando.</li>
           <li><b>Humedad del suelo sostenida</b> (peso 2): no basta con que el suelo esté húmedo hoy ni con que se mojara en su día; tiene que haberse <b>mantenido húmedo desde que se mojó</b>. Se busca el día más húmedo de la ventana disparadora y se toma el <b>mínimo desde ahí hasta hoy</b>: si por el camino se secó, la brotada se abortó. La sequía anterior a la lluvia no cuenta, porque de eso ya se encarga el retardo. Por debajo de ~12 % (punto de marchitez en estos suelos) la nota es cero; el óptimo empieza hacia el 24 %.</li>
         </ul>
         <p><b>2. El crecimiento (ahora).</b> Mientras la seta crece necesita condiciones que la acompañen, y esas se miran en los días recientes: <b>temperatura media de 5 días</b> (peso 2: boletus 9–18 °C, níscalo 8–16 °C, caesarea 16–24 °C), <b>temperatura máxima media de 5 días</b> (peso 1,5: por encima de ~26 °C el boletus se va a cero, el níscalo a 25 °C, la caesarea aguanta hasta 33 °C) y <b>temperatura del suelo de 5 días</b> (peso 2). La máxima va aparte porque la media diaria esconde los días de calor que secan el terreno y abortan los primordios.</p>
@@ -214,6 +214,23 @@
         <h3>¿Es fiable?</h3>
         <p>Es un <b>índice de favorabilidad heurístico y no calibrado</b>: sirve para <b>comparar días y detectar ventanas favorables</b>, no es una probabilidad real de encontrar setas. Además, "no encontrar" no equivale a "no hay": el hongo puede estar sin fructificar.</p>
         <p>Limitaciones: no distingue la especie de árbol hospedador ni la altitud fina; la temperatura y la humedad del suelo son de modelo (rejilla ~10 km) y el mapa de hábitat tiene celdas de ~100 m.</p>
+
+        <h3>Contraste con la campaña 2026 en España (3 nov 2026)</h3>
+        <p>Nueve zonas del país frente a lo que publicaban los medios y las sociedades micológicas esos días. No es una validación rigurosa — los reportes son cualitativos y cada punto es una coordenada concreta, no la comarca entera — pero sirve para ver si el modelo ordena bien las zonas.</p>
+        <table style="margin-top:6px">
+          <tr><th>Zona</th><th>Reportes</th><th>Hoy</th><th>Máx. 16 d</th></tr>
+          <tr><td>Montseny (BCN)</td><td>Muy buena temporada prevista</td><td style="color:var(--green)"><b>61</b></td><td>87</td></tr>
+          <tr><td>Monte Castrove (O Salnés)</td><td>Hay boletus, pero pocos</td><td>14</td><td>86</td></tr>
+          <tr><td>Selva de Oza (Hecho)</td><td>Arrancó bien en septiembre</td><td>13</td><td>14</td></tr>
+          <tr><td>Vall de Boí</td><td>Tardío y escaso</td><td>8</td><td>8</td></tr>
+          <tr><td>Sierra do Courel</td><td>Galicia, poca variedad</td><td>5</td><td>47</td></tr>
+          <tr><td>Sierra de Ancares (Bierzo)</td><td>«Peor campaña en 50 años»</td><td style="color:var(--red)"><b>5</b></td><td>39</td></tr>
+          <tr><td>Deleitosa</td><td>Nada (comprobado en campo)</td><td style="color:var(--red)"><b>4</b></td><td>87</td></tr>
+          <tr><td>Pinar de Valsaín</td><td>Seco y tardío</td><td>3</td><td>16</td></tr>
+          <tr><td>Pinares de Soria</td><td>Níscalos ausentes</td><td>1</td><td>27</td></tr>
+        </table>
+        <p>El orden coincide con lo que se contaba: rojo casi en todas partes y una sola excepción clara. El <b>Montseny</b> es además el único punto con lluvia abundante (106 mm en 30 días frente a 18–83 mm en el resto), y el modelo lo señala sin que nadie se lo diga. El Bierzo, Valsaín y Soria quedan en el fondo, como decían los reportes.</p>
+        <p>Lo que no encaja del todo es <b>Galicia</b>: en O Salnés sí se están cogiendo boletus y el modelo da 14. Ahí solo cayeron ~11 mm a finales de octubre, por debajo del umbral. El mismo reportaje decía que donde antes se veían cien setas ahora se ven cinco o diez, así que «pocas» puede ser una lectura razonable de un 14, pero no se puede dar por bueno sin comprobarlo en el campo.</p>
 
         <h3>Contraste con observaciones reales (Deleitosa)</h3>
         <p>Siete salidas reales, con su fecha, frente a lo que dice el modelo <b>después</b> de las correcciones v2.1 a v2.5. No es una validación estadística: son siete datos de un solo punto, y las correcciones se hicieron a partir de los cuatro negativos, así que esos no son una prueba independiente. Los tres positivos de 2023 y 2024 sí lo son, porque aparecieron cuando el modelo ya estaba corregido.</p>
@@ -254,7 +271,15 @@
 
     <div class="tab method" id="tab-versiones">
       <div class="card">
-        <b>Historial del algoritmo</b> <span class="note">(versión actual: 2.5)</span>
+        <b>Historial del algoritmo</b> <span class="note">(versión actual: 2.6)</span>
+        <h3>v2.6 · 3 nov 2026 · La lluvia que hace falta depende del sitio</h3>
+        <ul>
+          <li>El umbral de lluvia disparadora estaba calibrado para dehesa extremeña, donde el suelo baja al 10 % y buena parte del agua se gasta en rehidratar el terreno. En el norte húmedo, donde no baja del 23 %, pedía demasiada lluvia.</li>
+          <li>Ahora el umbral <b>se escala con la humedad mínima de los últimos 60 días</b> del punto: de ×1,2 en un sitio que ha llegado muy seco a ×0,65 en uno que se ha mantenido húmedo.</li>
+          <li>La serie descargada pasa de 30 a <b>60 días</b> hacia atrás, porque si no esa ventana salía truncada y falseaba el cálculo en los primeros días del gráfico.</li>
+          <li><b>Las siete observaciones de Deleitosa no se mueven:</b> 87 en las tres fechas con setas y 4–28 en las cuatro vacías. Era la condición para aceptar el cambio.</li>
+          <li>Efecto real este otoño: poco, porque ha sido seco en casi toda España y el factor se queda entre 0,91 y 1,22. El Montseny sube de 49 a 61. El mecanismo importará más en años normales y en zonas atlánticas.</li>
+        </ul>
         <h3>Contraste · 3 nov 2026</h3>
         <ul>
           <li>Primeras observaciones <b>positivas</b> en Deleitosa: boletus y amanitas el 11 de noviembre de 2023, setas (macrolepiotas) el 20 de octubre de 2024 y una cosecha de boletus el 3 de noviembre de 2024.</li>
@@ -404,7 +429,7 @@
 
 <script>
 const DEFAULT = { lat: 39.3667, lon: -5.5833, name: 'Deleitosa (Cáceres)' };
-const PAST = 30, FUT = 16, TODAY = PAST;
+const PAST = 60, FUT = 16, TODAY = PAST; // 60 d atrás: rainDemand necesita ese recorrido
 
 const mean = a => a.reduce((s,v)=>s+v,0)/a.length;
 const sum = a => a.reduce((s,v)=>s+v,0);
@@ -682,6 +707,17 @@ function soilSustained(S, i, lag) {
   return isFinite(m) ? m : null;
 }
 
+// Cuánta lluvia hace falta para disparar la fructificación depende de lo seco que llegue el sitio.
+// En un suelo mediterráneo que baja al 10 % buena parte del agua se gasta en rehidratar el terreno;
+// en uno atlántico que nunca baja del 23 % hace falta bastante menos. Se usa la humedad mínima de
+// los últimos 60 días, que caracteriza el sitio y no salta de un día para otro.
+const FC = 0.30; // capacidad de campo aproximada
+function rainDemand(S, i) {
+  const v = S.SM.slice(Math.max(0, i-59), i+1).filter(x => x != null);
+  if (!v.length) return 1;
+  return 0.5 + 2.5*Math.max(0, FC - Math.min(...v)); // 1,0 en dehesa seca; ~0,65 en Galicia húmeda
+}
+
 // Índice de APARICIÓN para el día i: el agua que disparó la fructificación se mira con
 // retardo (s.lag días, el tiempo que tarda la seta en hacerse visible); la temperatura y la
 // humedad del suelo se miran ahora, porque es cuando el carpóforo está creciendo.
@@ -691,21 +727,24 @@ function scoreAt(S, i) {
   const crece = { tmean:mean(win(S.Tm,5)), tmax:mean(win(S.Tx,5)), soilT:mean(win(S.ST,5)),
                   ph:S.terrain?.ph, clay:S.terrain?.clay, aspect:S.terrain?.aspect };
   const month = new Date(S.time[i]).getMonth();
+  const dem = rainDemand(S, i);
   const out = {}; let vals = null;
   for (const [k,s] of Object.entries(SPECIES)) {
     const v = { ...crece, rainTrig:triggerRain(S, i, s.lag), soilM:soilSustained(S, i, s.lag) };
     const f = {};
+    // el umbral de lluvia se escala con lo seco que esté el sitio; el resto de rangos son fijos
+    const rango = key => key==='rainTrig' ? s.rainTrig.map(x => x*dem) : s[key];
     const gm = pesos => { let lw=0, w=0; // media geométrica ponderada de un bloque
       for (const key of Object.keys(pesos)) {
         if (v[key]==null) continue; // sin dato de terreno: el factor no cuenta
-        f[key] = isNaN(v[key]) ? 0.5 : trap(v[key], ...s[key]);
+        f[key] = isNaN(v[key]) ? 0.5 : trap(v[key], ...rango(key));
         lw += pesos[key]*Math.log(Math.max(f[key],0.05)); w += pesos[key];
       }
       return w ? Math.exp(lw/w) : 1; };
     const agua = gm(WATER), resto = gm(WEIGHTS);
     const frost = s.frostPenalty(tmin7), season = s.season[month];
     const habitat = S.terrain?.clc?.length ? habitatFactor(k, S.terrain.clc) : null; // null = sin dato, no penaliza
-    out[k] = { score:Math.round(100*agua*resto*frost*season*(habitat ?? 1)), f, agua, frost, season, habitat, vals:v };
+    out[k] = { score:Math.round(100*agua*resto*frost*season*(habitat ?? 1)), f, agua, dem, frost, season, habitat, vals:v };
     if (!vals) vals = v;
   }
   return { vals, tmin7, out };
@@ -720,7 +759,7 @@ const dayName = (t,opts) => new Date(t).toLocaleDateString('es-ES', opts||{weekd
 function render(S, d) {
   const { vals, tmin7, out } = scoreAt(S, TODAY);
   const names = { rainTrig:'Lluvia disparadora', tmean:'T. media 5 d', tmax:'T. máx. 5 d', soilT:'T. suelo 5 d', soilM:'Humedad del suelo (sostenida)', ph:'pH del suelo', clay:'Arcilla', aspect:'Orientación' };
-  const nameOf = (key, s) => key==='rainTrig' ? `Lluvia disparadora (~${s.lag} d antes)` : names[key];
+  const nameOf = (key, s, o) => key==='rainTrig' ? `Lluvia disparadora (~${s.lag} d antes, óptimo ≥${Math.round(s.rainTrig[1]*o.dem)} mm)` : names[key];
   const fmt = { rainTrig:v=>v.toFixed(0)+' mm', tmean:v=>v.toFixed(1)+' °C', tmax:v=>v.toFixed(1)+' °C', soilT:v=>v.toFixed(1)+' °C', soilM:v=>(v*100).toFixed(0)+' %', ph:v=>v.toFixed(1), clay:v=>v.toFixed(0)+' %',
     aspect:v=>v>0.25?'umbría':v<-0.25?'solana':'neutra / llano' };
   const T = S.terrain || {};
@@ -747,7 +786,7 @@ function render(S, d) {
       </div>
       <div style="margin-top:10px">
         ${FACTOR_KEYS.filter(key=>o.vals[key]!=null).map(key=>`
-          <div class="factor"><span>${nameOf(key,s)}</span><span>${isNaN(o.vals[key])?'—':fmt[key](o.vals[key])}</span></div>
+          <div class="factor"><span>${nameOf(key,s,o)}</span><span>${isNaN(o.vals[key])?'—':fmt[key](o.vals[key])}</span></div>
           <div class="bar"><b style="width:${Math.round(o.f[key]*100)}%;background:${fcol(o.f[key])}"></b></div>`).join('')}
         <div class="factor"><span><b>Agua</b> (factor limitante)</span><span><b>×${o.agua.toFixed(2)}</b></span></div>
         <div class="factor"><span>Época del año</span><span>×${o.season.toFixed(1)}</span></div>
@@ -918,12 +957,12 @@ async function computeHist() {
     const end = y === Y ? lastAvail : `${y}-12-31`; if (end < `${y}-08-01`) return null; // temporada actual aún sin empezar
     const ck = key+'|'+y+'|'+tk; if (y !== Y && histYearCache.has(ck)) return histYearCache.get(ck); // el pasado no cambia
     try {
-      const r = await histFetch('https://archive-api.open-meteo.com/v1/archive?latitude='+current.lat+'&longitude='+current.lon+'&start_date='+y+'-07-01&end_date='+end+
+      const r = await histFetch('https://archive-api.open-meteo.com/v1/archive?latitude='+current.lat+'&longitude='+current.lon+'&start_date='+y+'-06-01&end_date='+end+
         '&daily=precipitation_sum,temperature_2m_max,temperature_2m_min,temperature_2m_mean,et0_fao_evapotranspiration&hourly='+HIST_SOIL.st+','+HIST_SOIL.sm+'&timezone=auto',
         { signal: AbortSignal.timeout(30000) });
       if (!r.ok) throw new Error(r.status);
       const S = series(await r.json(), HIST_SOIL); S.terrain = terrain;
-      const first = 31, last = S.P.reduce((m, v, i) => v != null ? i : m, 0); // 1 ago ... último día con dato
+      const first = 61, last = S.P.reduce((m, v, i) => v != null ? i : m, 0); // 1 ago ... último día con dato
       const weeks = []; // índice medio de cada semana y especie
       for (let w0 = first; w0 <= last; w0 += 7) {
         const acc = {}; let n = 0;
