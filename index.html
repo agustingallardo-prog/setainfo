@@ -56,6 +56,10 @@
   .legend span::before { content:""; display:inline-block; width:14px; height:4px; margin-right:5px; vertical-align:middle; background:var(--c); }
   .best { font-size:.85rem; margin:4px 0; }
   .method a { color:#8b5a2b; }
+  .aviso-legal { background:#fff4d6; border:1px solid #f0c75e; color:#6b4b00; border-radius:10px; padding:10px 12px; font-size:.82rem; line-height:1.4; margin-bottom:12px; }
+  .norma-head { font-family:Georgia,'Times New Roman',serif; font-size:1.05rem; margin:2px 0 8px; }
+  .norma-dato { display:flex; gap:10px; padding:6px 0; border-bottom:1px solid #eee; font-size:.85rem; }
+  .norma-dato b { flex:0 0 100px; }
   .method h3 { margin:12px 0 4px; font-size:.95rem; } .method p, .method li { font-size:.85rem; line-height:1.4; }
   /* ---- Diseño "setero" ---- */
   body { background-color:var(--bg);
@@ -149,6 +153,7 @@
       <button class="active" data-tab="hoy">Hoy</button>
       <button data-tab="prono">Pronóstico</button>
       <button data-tab="historial">Historial</button>
+      <button data-tab="normativa">Normativa</button>
       <button data-tab="metodo">Método</button>
       <button data-tab="versiones">Versiones</button>
       <button data-tab="about">Acerca de</button>
@@ -182,6 +187,22 @@
         <div class="histctl"><select id="histSp" aria-label="Especie"></select><button id="histGo">Calcular historial</button></div>
         <div id="histMsg" class="note" style="text-align:left"></div>
         <div id="hist" class="tablewrap"></div>
+      </div>
+    </div>
+
+    <div class="tab method" id="tab-normativa">
+      <div class="card">
+        <div class="aviso-legal"><b>⚠ Esto no es asesoramiento legal.</b> Es un resumen orientativo recopilado de prensa y guías divulgativas entre octubre de 2025 y noviembre de 2026, no del boletín oficial. Las cifras <b>cambian cada temporada</b> y varían por provincia, monte y municipio; las fuentes consultadas incluso se contradicen en algunas comunidades. Antes de salir, <b>confirma siempre</b> en la web oficial y en el ayuntamiento.</div>
+        <div id="normativa"></div>
+        <h3>Vale en todas partes</h3>
+        <ul>
+          <li><b>La mayoría del monte tiene dueño.</b> En finca particular hace falta permiso del propietario, aunque no haya valla ni cartel. En Extremadura esto es la norma, no la excepción.</li>
+          <li><b>Terrenos acotados.</b> Si hay carteles de acotado micológico, se necesita permiso aunque la comunidad no fije cupo general.</li>
+          <li><b>Espacios protegidos.</b> Parques nacionales y naturales tienen reglas propias, casi siempre más estrictas.</li>
+          <li><b>Cómo recolectar:</b> no remuevas el suelo ni uses rastrillos, deja los ejemplares pasados, usa cesta de rejilla y no recolectes de noche. Varias comunidades lo prohíben expresamente.</li>
+          <li><b>Especies protegidas:</b> algunas no se pueden recoger en ningún caso.</li>
+          <li><b>Vender</b> lo recolectado exige casi siempre permiso comercial y trazabilidad.</li>
+        </ul>
       </div>
     </div>
 
@@ -279,6 +300,12 @@
           <li>La serie descargada pasa de 30 a <b>60 días</b> hacia atrás, porque si no esa ventana salía truncada y falseaba el cálculo en los primeros días del gráfico.</li>
           <li><b>Las siete observaciones de Deleitosa no se mueven:</b> 87 en las tres fechas con setas y 4–28 en las cuatro vacías. Era la condición para aceptar el cambio.</li>
           <li>Efecto real este otoño: poco, porque ha sido seco en casi toda España y el factor se queda entre 0,91 y 1,22. El Montseny sube de 49 a 61. El mecanismo importará más en años normales y en zonas atlánticas.</li>
+        </ul>
+        <h3>Normativa · 3 nov 2026 (el algoritmo no cambia)</h3>
+        <ul>
+          <li>Nueva pestaña <b>Normativa</b>: detecta la comunidad, la provincia y el municipio del punto elegido (OpenStreetMap) y muestra un resumen de las reglas de recolección.</li>
+          <li>Cubre las 17 comunidades, con cupo orientativo, si hace falta permiso y enlace a la web oficial. Fuera de España avisa de que no aplica.</li>
+          <li><b>Importante:</b> el resumen está recopilado de prensa y guías divulgativas, no del boletín oficial. Las fuentes consultadas se contradicen en varias comunidades y las cifras cambian cada temporada, así que la pestaña lo advierte y remite siempre a la fuente oficial y al ayuntamiento.</li>
         </ul>
         <h3>Contraste · 3 nov 2026</h3>
         <ul>
@@ -575,6 +602,7 @@ async function select(lat, lon, name) {
     render(S, d); // el tiempo se muestra ya; el terreno se añade cuando llegue
     setStatus((name||`${lat.toFixed(4)}, ${lon.toFixed(4)}`)+` · altitud ${Math.round(d.elevation)} m · ${new Date().toLocaleDateString('es-ES')}`);
     document.getElementById('terreno').innerHTML = '<b>Terreno</b><p class="note">Consultando suelo…</p>';
+    document.getElementById('normativa').innerHTML = '<p class="note" style="text-align:left">Averiguando la comunidad…</p>';
     const mine = ++selectId;
     setProvisional(true);
     const terrain = await fetchTerrain(lat, lon);
@@ -638,7 +666,8 @@ async function fetchTerrain(lat, lon) {
     .then(j => { const [,E,W,N,S] = j.elevation; Object.assign(t, aspectFrom(lat, E, W, N, S, dLat, dLon)); })
     .catch(() => {});
   const clc = fetchClcArea(lat, lon).then(cs => { if (cs) t.clc = cs; });
-  await Promise.all([soil, forest, elev, clc]);
+  const zona = fetchZona(lat, lon).then(z => { t.zona = z; renderNormativa(z); });
+  await Promise.all([soil, forest, elev, clc, zona]);
   return t;
 }
 const compass = a => ['N','NE','E','SE','S','SO','O','NO'][Math.round(a/45)%8];
@@ -716,6 +745,104 @@ function rainDemand(S, i) {
   const v = S.SM.slice(Math.max(0, i-59), i+1).filter(x => x != null);
   if (!v.length) return 1;
   return 0.5 + 2.5*Math.max(0, FC - Math.min(...v)); // 1,0 en dehesa seca; ~0,65 en Galicia húmeda
+}
+
+
+// ---------- Normativa de recolección por comunidad ----------
+// Resumen ORIENTATIVO recopilado de prensa y guías divulgativas (oct 2025 – nov 2026), no del
+// boletín oficial. Las cifras cambian cada temporada y varían por provincia, monte y municipio.
+const NORMATIVA = {
+  extremadura: { nombre:'Extremadura', web:'https://www.juntaex.es/', cupo:'Sin cupo autonómico en vigor',
+    permiso:'Depende del monte y del ayuntamiento',
+    notas:['Había un decreto en tramitación que planteaba 7 kg/día en modalidad recreativa y 40 kg/día en intensiva: conviene comprobar si ya está aprobado.',
+           'Monfragüe y otros espacios protegidos tienen normas propias.',
+           'Buena parte del monte es finca particular: ahí manda el permiso del dueño.'] },
+  castillayleon: { nombre:'Castilla y León', web:'https://www.micocyl.es/', cupo:'Entre 3 y 5 kg/día según provincia y comarca',
+    permiso:'Sí en los terrenos acotados (sistema Micocyl)',
+    notas:['Las fuentes consultadas discrepan sobre el cupo general.','El permiso puede ser diario o de temporada y se saca por internet en micocyl.es.'] },
+  aragon: { nombre:'Aragón', web:'https://www.aragon.es/', cupo:'3 kg/día autoconsumo · 12 kg con permiso recreativo · 60 kg comercial',
+    permiso:'No hasta 3 kg en montes no regulados; sí por encima',
+    notas:['Cifras recordadas por la Policía Nacional en octubre de 2026.','En espacios protegidos del Pirineo hace falta permiso específico.'] },
+  navarra: { nombre:'Navarra', web:'https://www.navarra.es/', cupo:'3 kg/día sin permiso; hasta 8 kg en acotados con autorización',
+    permiso:'Sí en los acotados micológicos', notas:['Hay una red de acotados, cada uno con sus reglas.'] },
+  larioja: { nombre:'La Rioja', web:'https://www.larioja.org/', cupo:'3 kg/día (Decreto 1/2015); 6 kg en Sierra de Moncalvillo',
+    permiso:'Del titular en terreno acotado', notas:[] },
+  galicia: { nombre:'Galicia', web:'https://mediorural.xunta.gal/', cupo:'2 kg/día para uso personal',
+    permiso:'Sí para recolección comercial por encima de 2 kg',
+    notas:['Prohibido remover el suelo, usar rastrillos y recolectar de noche.'] },
+  castillalamancha: { nombre:'Castilla-La Mancha', web:'https://www.castillalamancha.es/', cupo:'5 kg/día en aprovechamiento episódico para autoconsumo',
+    permiso:'Sí en los cotos de setas', notas:['Las zonas reservadas son de uso exclusivo del titular.'] },
+  valenciana: { nombre:'Comunitat Valenciana', web:'https://www.gva.es/', cupo:'6 kg/día para uso personal',
+    permiso:'No hasta 6 kg; sí por encima o para venta', notas:['Revisa las ordenanzas municipales.'] },
+  cataluna: { nombre:'Catalunya', web:'https://agricultura.gencat.cat/', cupo:'Sin cupo autonómico fijado',
+    permiso:'Por lo general no en terreno público permitido',
+    notas:['Mandan las ordenanzas locales y los acuerdos con propietarios.','Una propuesta de 2015 con cupo de 6 kg y licencia no llegó a aplicarse.'] },
+  madrid: { nombre:'Comunidad de Madrid', web:'https://www.comunidad.madrid/', cupo:'Hasta 10 kg/día en municipios de la Sierra de Guadarrama',
+    permiso:'Municipal en algunos municipios (unos 5 €/día si no estás empadronado)', notas:[] },
+  andalucia: { nombre:'Andalucía', web:'https://www.juntadeandalucia.es/', cupo:'3 kg/día en Málaga; 5 kg en Almería, Córdoba, Granada y Jaén',
+    permiso:'No para autoconsumo', notas:['Los cupos los fijan resoluciones provinciales publicadas en el BOJA.'] },
+  cantabria: { nombre:'Cantabria', web:'https://www.cantabria.es/', cupo:'3 kg/día para uso personal',
+    permiso:'Empadronados no; no residentes y comerciales pagan tasa', notas:[] },
+  euskadi: { nombre:'Euskadi', web:'https://www.euskadi.eus/', cupo:'Varía por parque (p. ej. 2 kg/día en Gorbeialdea)',
+    permiso:'Sí en los parques regulados', notas:['En algunos espacios se prohíbe remover el suelo y usar cuchillo.'] },
+  asturias: { nombre:'Asturias', web:'https://www.asturias.es/', cupo:'Sin cupo general; 10 kg en Boal (6 kg si no resides allí)',
+    permiso:'En algunos parques naturales y reservas de la biosfera', notas:[] },
+  canarias: { nombre:'Canarias', web:'https://www.gobiernodecanarias.org/', cupo:'En torno a 3 kg/día',
+    permiso:'Declaración responsable en espacios protegidos (Corona Forestal, Las Lagunetas)', notas:[] },
+  baleares: { nombre:'Illes Balears', web:'https://www.caib.es/', cupo:'Sin normativa autonómica específica',
+    permiso:'Consulta el parque o el ayuntamiento', notas:[] },
+  murcia: { nombre:'Región de Murcia', web:'https://www.carm.es/', cupo:'Sin normativa autonómica específica',
+    permiso:'Consulta el parque o el ayuntamiento', notas:[] }
+};
+const sinTildes = x => (x||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+function comunidadClave(state) {
+  const t = sinTildes(state);
+  if (/extremadura/.test(t)) return 'extremadura';
+  if (/castilla.*leon/.test(t)) return 'castillayleon';
+  if (/castilla.*mancha/.test(t)) return 'castillalamancha';
+  if (/catalu|catalonia/.test(t)) return 'cataluna';
+  if (/arago/.test(t)) return 'aragon';
+  if (/navarr|nafarroa/.test(t)) return 'navarra';
+  if (/rioja/.test(t)) return 'larioja';
+  if (/galicia|galiza/.test(t)) return 'galicia';
+  if (/valencia/.test(t)) return 'valenciana';
+  if (/madrid/.test(t)) return 'madrid';
+  if (/andaluc/.test(t)) return 'andalucia';
+  if (/cantabria/.test(t)) return 'cantabria';
+  if (/euskadi|vasco|basque/.test(t)) return 'euskadi';
+  if (/asturias/.test(t)) return 'asturias';
+  if (/canaria/.test(t)) return 'canarias';
+  if (/balear/.test(t)) return 'baleares';
+  if (/murcia/.test(t)) return 'murcia';
+  return null;
+}
+// Comunidad, provincia y municipio del punto (OpenStreetMap / Nominatim)
+function fetchZona(lat, lon) {
+  return fetchT('https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&addressdetails=1&lat='+lat+'&lon='+lon)
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(j => { const a = j.address || {};
+      return { pais:a.country_code, paisNombre:a.country, com:a.state, prov:a.province || a.county,
+               muni:a.municipality || a.town || a.village || a.city || a.hamlet }; })
+    .catch(() => null);
+}
+function renderNormativa(z) {
+  const box = document.getElementById('normativa');
+  if (!z) { box.innerHTML = '<p class="note" style="text-align:left">No se pudo averiguar en qué comunidad está el punto. Inténtalo de nuevo.</p>'; return; }
+  if (z.pais && z.pais !== 'es') {
+    box.innerHTML = '<div class="norma-head">' + esc(z.muni || '') + (z.pais ? ' · ' + esc(z.paisNombre || z.pais.toUpperCase()) : '') + '</div>' +
+      '<p class="note" style="text-align:left">Este resumen solo cubre España. Fuera de aquí, consulta la normativa del país o la región correspondiente.</p>';
+    return;
+  }
+  const n = NORMATIVA[comunidadClave(z.com)];
+  const donde = [z.muni, z.prov, z.com].filter(Boolean).map(esc).join(' · ');
+  if (!n) { box.innerHTML = '<div class="norma-head">' + (donde || 'Punto seleccionado') + '</div>' +
+    '<p class="note" style="text-align:left">No tengo recogida la normativa de esta zona. Consulta la web de la comunidad y el ayuntamiento.</p>'; return; }
+  box.innerHTML = '<div class="norma-head">' + donde + '</div>' +
+    '<div class="norma-dato"><b>Cupo</b><span>' + n.cupo + '</span></div>' +
+    '<div class="norma-dato"><b>Permiso</b><span>' + n.permiso + '</span></div>' +
+    n.notas.map(x => '<div class="norma-dato"><b></b><span>' + x + '</span></div>').join('') +
+    '<div class="norma-dato"><b>Oficial</b><span><a target="_blank" rel="noopener" href="' + n.web + '">' + n.nombre +
+    ' — web oficial</a> · y pregunta en el ayuntamiento de ' + esc(z.muni || 'la zona') + '</span></div>';
 }
 
 // Índice de APARICIÓN para el día i: el agua que disparó la fructificación se mira con
