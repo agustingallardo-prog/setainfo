@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Semáforo de setas · Boletus y Amanita caesarea</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Setas">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#4a3524">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root { --bg:#f5f1e8; --card:#fff; --ink:#2b2b2b; --muted:#777; --red:#d64545; --amber:#f0a30a; --green:#2e9e5b; --off:#ddd; --brown:#4a3524; }
+  * { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
+  body { margin:0; font-family:system-ui,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:10px 14px; background:var(--brown); color:#fff; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  header h1 { font-size:1.1rem; margin:0; flex:1 1 100%; }
+  .search { display:flex; flex:1 1 100%; gap:6px; flex-wrap:wrap; }
+  header input { padding:8px 10px; border-radius:6px; border:0; flex:1 1 160px; min-width:0; font-size:1rem; }
+  header button { padding:8px 12px; border-radius:6px; border:0; background:#e8c07d; cursor:pointer; font-weight:600; font-size:.95rem; }
+  main { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; padding:14px; max-width:1300px; margin:0 auto; }
+  @media (max-width:850px){ main{grid-template-columns:minmax(0,1fr); padding:10px;} }
+  @media (min-width:700px){ header h1{flex:1 1 auto;} .search{flex:0 1 460px;} }
+  #map { height:min(520px,55vh); min-height:280px; border-radius:10px; box-shadow:0 1px 4px #0003; }
+  .card { background:var(--card); border-radius:10px; padding:14px; box-shadow:0 1px 4px #0002; margin-bottom:14px; }
+  .tabs { display:flex; gap:4px; margin-bottom:10px; }
+  .tabs button { flex:1; padding:10px 6px; border:0; border-radius:8px; background:#e6dcc8; cursor:pointer; font-weight:600; font-size:.9rem; }
+  .tabs button.active { background:var(--brown); color:#fff; }
+  .tab { display:none; } .tab.active { display:block; }
+  .species { display:flex; gap:14px; align-items:center; }
+  .light { background:#333; border-radius:30px; padding:8px; display:flex; flex-direction:column; gap:6px; flex:none; }
+  .light i { width:28px; height:28px; border-radius:50%; background:var(--off); display:block; opacity:.35; }
+  .light i.on.r { background:var(--red); opacity:1; box-shadow:0 0 12px var(--red); }
+  .light i.on.a { background:var(--amber); opacity:1; box-shadow:0 0 12px var(--amber); }
+  .light i.on.g { background:var(--green); opacity:1; box-shadow:0 0 12px var(--green); }
+  .species h2 { margin:0 0 2px; font-size:1.05rem; }
+  .species em { color:var(--muted); font-weight:400; font-size:.8rem; display:block; }
+  .score { font-size:2rem; font-weight:700; }
+  .bar { height:8px; background:#eee; border-radius:4px; overflow:hidden; margin:2px 0 8px; }
+  .bar b { display:block; height:100%; }
+  .factor { font-size:.82rem; display:flex; justify-content:space-between; gap:8px; }
+  .tablewrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:.82rem; }
+  th,td { padding:3px 6px; text-align:right; border-bottom:1px solid #eee; white-space:nowrap; }
+  th:first-child,td:first-child { text-align:left; }
+  .fc td { color:#2a6fb0; }
+  #status { color:var(--muted); font-size:.85rem; }
+  .note { font-size:.75rem; color:var(--muted); }
+  svg.chart { width:100%; height:auto; display:block; }
+  .legend { display:flex; flex-wrap:wrap; gap:12px; font-size:.8rem; margin:6px 0; }
+  .legend span::before { content:""; display:inline-block; width:14px; height:4px; margin-right:5px; vertical-align:middle; background:var(--c); }
+  .best { font-size:.85rem; margin:4px 0; }
+  .method h3 { margin:12px 0 4px; font-size:.95rem; } .method p, .method li { font-size:.85rem; line-height:1.4; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🍄 Semáforo de setas</h1>
+  <div class="search">
+    <input id="q" placeholder="Buscar lugar (ej. Trujillo)…">
+    <button id="go">Buscar</button>
+    <button id="loc">📍 Mi ubicación</button>
+  </div>
+</header>
+<main>
+  <section>
+    <div id="map"></div>
+    <p id="status">Haz clic en el mapa para elegir una ubicación.</p>
+  </section>
+  <section>
+    <div class="tabs">
+      <button class="active" data-tab="hoy">Hoy</button>
+      <button data-tab="prono">Pronóstico</button>
+      <button data-tab="metodo">Método</button>
+    </div>
+
+    <div class="tab active" id="tab-hoy">
+      <div class="card" id="boletus"></div>
+      <div class="card" id="caesarea"></div>
+      <div class="card"><b>Últimos 7 días y previsión</b><div class="tablewrap"><table id="days"></table></div></div>
+    </div>
+
+    <div class="tab" id="tab-prono">
+      <div class="card">
+        <b>Evolución de la probabilidad (14 días atrás → 16 días adelante)</b>
+        <div class="legend"><span style="--c:#8b5a2b">Boletus</span><span style="--c:#e07b00">Amanita caesarea</span><span style="--c:#6aa9e0">Lluvia diaria</span></div>
+        <div id="chart"></div>
+        <div id="best"></div>
+        <p class="note">Línea continua = datos reales; discontinua = previsión. La fiabilidad baja con los días: la lluvia a más de 7 días vista es poco precisa.</p>
+      </div>
+    </div>
+
+    <div class="tab method" id="tab-metodo">
+      <div class="card">
+        <b>¿Cómo se calcula?</b>
+        <p>Cada día se puntúa mirando <u>hacia atrás</u>, porque las setas fructifican entre 5 y 15 días después de las condiciones que las disparan:</p>
+        <ul>
+          <li><b>Lluvia acumulada 14 días</b> (peso 3): ~20–60 mm es lo ideal.</li>
+          <li><b>Temperatura media 7 días</b> (peso 2): boletus 9–18 °C; caesarea 16–24 °C.</li>
+          <li><b>Temperatura del suelo 7 días</b> (peso 2): boletus 9–17 °C; caesarea 15–23 °C.</li>
+          <li><b>Humedad del suelo 3 días</b> (peso 1,5).</li>
+          <li><b>Días desde la última lluvia ≥ 8 mm</b> (peso 1,5): lo óptimo son 2–12 días (el micelio tarda en responder).</li>
+        </ul>
+        <p>Cada factor da un valor 0–1 (1 dentro del rango óptimo, bajando hasta 0). Se combinan con <b>media geométrica ponderada</b>: un factor muy malo (p. ej. sin lluvia) hunde el total. Después se multiplica por la <b>época del año</b> y por un <b>castigo por helada</b> (T. mín. de los últimos 7 días).</p>
+        <p>En el pronóstico se aplica la misma fórmula a cada día futuro usando la lluvia y temperatura previstas.</p>
+        <h3>¿Es fiable?</h3>
+        <p>Es un modelo heurístico: sirve para <b>comparar días y detectar ventanas favorables</b>, no para dar probabilidades reales. Limitaciones: no considera tipo de bosque, orientación, umbría, altitud fina ni micorrizas concretas; la temperatura del suelo es de modelo (rejilla ~10 km).</p>
+        <p>Para validarlo: anota qué días encuentras setas (o no) en tu zona y compara con la gráfica. Si el semáforo sale verde 5–12 días antes de tus mejores salidas, los rangos están bien; si no, hay que ajustar los parámetros del objeto <code>SPECIES</code>. Se podría añadir un registro de hallazgos para calibrarlo automáticamente.</p>
+      </div>
+    </div>
+    <p class="note">Estimación orientativa. No sustituye la identificación experta; respeta la normativa de recolección. Datos: Open-Meteo, OpenStreetMap.</p>
+  </section>
+</main>
+
+<script>
+const DEFAULT = { lat: 39.3667, lon: -5.5833, name: 'Deleitosa (Cáceres)' };
+const PAST = 30, FUT = 16, TODAY = PAST;
+
+const mean = a => a.reduce((s,v)=>s+v,0)/a.length;
+const sum = a => a.reduce((s,v)=>s+v,0);
+const trap = (x,a,b,c,d)=> x<=a||x>=d ? 0 : x<b ? (x-a)/(b-a) : x<=c ? 1 : (d-x)/(d-c);
+
+const SPECIES = {
+  boletus:  { title:'Boletus', sub:'edulis / aereus / pinophilus…', color:'#8b5a2b',
+    rain:[4,18,60,120], tmean:[3,9,18,23], soilT:[5,9,17,22], soilM:[0.10,0.18,0.38,0.50], gap:[0,2,10,20],
+    frostPenalty:t=> t<-1?0.3 : t<2?0.6 : t<5?0.9 : 1,
+    season:[0.5,0.3,0.2,0.7,0.7,0.4,0.4,0.4,1,1,1,0.6] },
+  caesarea: { title:'Amanita caesarea', sub:'amanita de los césares / oronja', color:'#e07b00',
+    rain:[8,25,70,130], tmean:[11,16,24,28], soilT:[11,15,23,27], soilM:[0.10,0.16,0.35,0.50], gap:[0,3,12,22],
+    frostPenalty:t=> t<2?0.1 : t<7?0.4 : t<10?0.8 : 1,
+    season:[0,0,0,0,0,0.2,0.5,0.9,1,1,0.7,0.2] }
+};
+const WEIGHTS = { rain:3, tmean:2, soilT:2, soilM:1.5, gap:1.5 };
+
+// ---------- Pestañas ----------
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('active', x===b));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.id==='tab-'+b.dataset.tab));
+});
+
+// ---------- Mapa ----------
+const map = L.map('map').setView([DEFAULT.lat, DEFAULT.lon], 11);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:18, attribution:'© OpenStreetMap' }).addTo(map);
+const marker = L.marker([DEFAULT.lat, DEFAULT.lon], { draggable:true }).addTo(map);
+map.on('click', e => select(e.latlng.lat, e.latlng.lng));
+marker.on('dragend', () => { const p = marker.getLatLng(); select(p.lat, p.lng); });
+window.addEventListener('resize', () => map.invalidateSize());
+
+document.getElementById('go').onclick = async () => {
+  const q = document.getElementById('q').value.trim(); if(!q) return;
+  try {
+    const r = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q));
+    const j = await r.json();
+    if (j[0]) { map.setView([+j[0].lat, +j[0].lon], 12); select(+j[0].lat, +j[0].lon, j[0].display_name.split(',')[0]); }
+    else setStatus('No se encontró ese lugar.');
+  } catch(e) { setStatus('Error en la búsqueda.'); }
+};
+document.getElementById('q').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('go').click(); });
+document.getElementById('loc').onclick = () => navigator.geolocation.getCurrentPosition(
+  p => { map.setView([p.coords.latitude,p.coords.longitude],12); select(p.coords.latitude,p.coords.longitude,'Tu ubicación'); },
+  () => setStatus('No se pudo obtener tu ubicación.'));
+function setStatus(t){ document.getElementById('status').textContent = t; }
+
+// ---------- Datos ----------
+async function select(lat, lon, name) {
+  marker.setLatLng([lat, lon]);
+  setStatus('Consultando datos meteorológicos…');
+  const url = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+
+    '&daily=precipitation_sum,temperature_2m_max,temperature_2m_min,temperature_2m_mean'+
+    '&hourly=soil_temperature_6cm,soil_moisture_3_9cm'+
+    '&past_days='+PAST+'&forecast_days='+FUT+'&timezone=auto';
+  try {
+    const r = await fetch(url); if(!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    const S = series(d);
+    render(S, d);
+    setStatus((name||`${lat.toFixed(4)}, ${lon.toFixed(4)}`)+` · altitud ${Math.round(d.elevation)} m · ${new Date().toLocaleDateString('es-ES')}`);
+  } catch(e) { setStatus('Error al consultar Open-Meteo: '+e.message); }
+}
+
+function series(d) {
+  const dayAvg = key => d.daily.time.map((_,i)=>{
+    const v = d.hourly[key].slice(i*24,i*24+24).filter(x=>x!=null); return v.length?mean(v):null; });
+  return { time:d.daily.time, P:d.daily.precipitation_sum, Tm:d.daily.temperature_2m_mean,
+           Tn:d.daily.temperature_2m_min, Tx:d.daily.temperature_2m_max,
+           ST:dayAvg('soil_temperature_6cm'), SM:dayAvg('soil_moisture_3_9cm') };
+}
+
+// Puntuación de ambas especies para el día i (mirando hacia atrás desde i)
+function scoreAt(S, i) {
+  const win = (arr,n) => arr.slice(Math.max(0,i-n+1), i+1).filter(x=>x!=null);
+  let gap = 30;
+  for (let k=i;k>=0;k--) if (S.P[k]>=8) { gap = i-k; break; }
+  const tmin7 = Math.min(...win(S.Tn,7));
+  const vals = { rain:sum(win(S.P,14)), tmean:mean(win(S.Tm,7)), soilT:mean(win(S.ST,7)), soilM:mean(win(S.SM,3)), gap };
+  const month = new Date(S.time[i]).getMonth();
+  const out = {};
+  for (const [k,s] of Object.entries(SPECIES)) {
+    const f = {}; let lw=0, w=0;
+    for (const key of Object.keys(WEIGHTS)) {
+      f[key] = isNaN(vals[key]) ? 0.5 : trap(vals[key], ...s[key]);
+      lw += WEIGHTS[key]*Math.log(Math.max(f[key],0.05)); w += WEIGHTS[key];
+    }
+    const frost = s.frostPenalty(tmin7), season = s.season[month];
+    out[k] = { score:Math.round(100*Math.exp(lw/w)*frost*season), f, frost, season };
+  }
+  return { vals, tmin7, out };
+}
+
+// ---------- Presentación ----------
+const color = s => s>=60?'g' : s>=30?'a' : 'r';
+const COLORS = { g:'var(--green)', a:'var(--amber)', r:'var(--red)' };
+const LABEL = { g:'Probabilidad alta', a:'Probabilidad media', r:'Probabilidad baja' };
+const dayName = (t,opts) => new Date(t).toLocaleDateString('es-ES', opts||{weekday:'short',day:'numeric',month:'short'});
+
+function render(S, d) {
+  const { vals, tmin7, out } = scoreAt(S, TODAY);
+  const names = { rain:'Lluvia 14 d', tmean:'T. media 7 d', soilT:'T. suelo 7 d', soilM:'Humedad suelo', gap:'Días desde lluvia ≥8 mm' };
+  const fmt = { rain:v=>v.toFixed(0)+' mm', tmean:v=>v.toFixed(1)+' °C', soilT:v=>v.toFixed(1)+' °C', soilM:v=>(v*100).toFixed(0)+' %', gap:v=>v+' d' };
+  const fcol = f => COLORS[f>.66?'g':f>.33?'a':'r'];
+  for (const [k,s] of Object.entries(SPECIES)) {
+    const o = out[k], c = color(o.score);
+    document.getElementById(k).innerHTML = `
+      <div class="species">
+        <div class="light"><i class="r ${c==='r'?'on':''}"></i><i class="a ${c==='a'?'on':''}"></i><i class="g ${c==='g'?'on':''}"></i></div>
+        <div style="flex:1;min-width:0">
+          <h2>${s.title}<em>${s.sub}</em></h2>
+          <div><span class="score" style="color:${COLORS[c]}">${o.score}</span>/100 · ${LABEL[c]}</div>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        ${Object.keys(WEIGHTS).map(key=>`
+          <div class="factor"><span>${names[key]}</span><span>${isNaN(vals[key])?'—':fmt[key](vals[key])}</span></div>
+          <div class="bar"><b style="width:${Math.round(o.f[key]*100)}%;background:${fcol(o.f[key])}"></b></div>`).join('')}
+        <div class="factor"><span>Época del año</span><span>×${o.season.toFixed(1)}</span></div>
+        <div class="factor"><span>Helada (T. mín. 7 d: ${tmin7.toFixed(1)} °C)</span><span>×${o.frost.toFixed(1)}</span></div>
+      </div>`;
+  }
+
+  let h = '<tr><th>Día</th><th>Lluvia</th><th>Tmín</th><th>Tmáx</th><th>Suelo</th></tr>';
+  for (let i=TODAY-6;i<S.time.length;i++) {
+    h += `<tr class="${i>TODAY?'fc':''}"><td>${dayName(S.time[i])}${i===TODAY?' (hoy)':''}</td><td>${S.P[i]==null?'—':S.P[i].toFixed(1)+' mm'}</td><td>${S.Tn[i].toFixed(0)}°</td><td>${S.Tx[i].toFixed(0)}°</td><td>${S.ST[i]==null?'—':S.ST[i].toFixed(1)+'°'}</td></tr>`;
+  }
+  document.getElementById('days').innerHTML = h;
+  renderChart(S);
+}
+
+function renderChart(S) {
+  const i0 = TODAY-14, n = S.time.length, i1 = n-1;
+  const scores = {}; for (let i=i0;i<=i1;i++) scores[i] = scoreAt(S,i).out;
+  const W=640, H=320, L=34, R=10, T=10, B=44, pw=W-L-R, ph=H-T-B;
+  const x = i => L + (i-i0)/(i1-i0)*pw, y = v => T + ph*(1-v/100);
+  let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">`;
+  // bandas semáforo
+  svg += `<rect x="${L}" y="${y(100)}" width="${pw}" height="${y(60)-y(100)}" fill="#2e9e5b" opacity=".13"/>
+          <rect x="${L}" y="${y(60)}" width="${pw}" height="${y(30)-y(60)}" fill="#f0a30a" opacity=".13"/>
+          <rect x="${L}" y="${y(30)}" width="${pw}" height="${y(0)-y(30)}" fill="#d64545" opacity=".10"/>`;
+  [0,30,60,100].forEach(v => svg += `<text x="${L-4}" y="${y(v)+4}" font-size="10" text-anchor="end" fill="#777">${v}</text>`);
+  // lluvia (barras, escala propia en la parte baja)
+  const maxP = Math.max(20, ...S.P.slice(i0).filter(v=>v!=null));
+  const bw = pw/(i1-i0)*0.6;
+  for (let i=i0;i<=i1;i++) if (S.P[i]>0) {
+    const bh = S.P[i]/maxP*ph*0.3;
+    svg += `<rect x="${x(i)-bw/2}" y="${T+ph-bh}" width="${bw}" height="${bh}" fill="#6aa9e0" opacity=".7"><title>${dayName(S.time[i])}: ${S.P[i].toFixed(1)} mm</title></rect>`;
+  }
+  // línea de hoy
+  svg += `<line x1="${x(TODAY)}" x2="${x(TODAY)}" y1="${T}" y2="${T+ph}" stroke="#555" stroke-dasharray="3 3"/>
+          <text x="${x(TODAY)+3}" y="${T+10}" font-size="10" fill="#555">hoy</text>`;
+  // líneas por especie: real y previsión
+  for (const [k,s] of Object.entries(SPECIES)) {
+    const pts = (a,b) => { let p=''; for (let i=a;i<=b;i++) p += `${x(i)},${y(scores[i][k].score)} `; return p; };
+    svg += `<polyline points="${pts(i0,TODAY)}" fill="none" stroke="${s.color}" stroke-width="2.5"/>
+            <polyline points="${pts(TODAY,i1)}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-dasharray="6 4"/>`;
+    for (let i=i0;i<=i1;i++) svg += `<circle cx="${x(i)}" cy="${y(scores[i][k].score)}" r="3" fill="${s.color}"><title>${s.title} · ${dayName(S.time[i])}: ${scores[i][k].score}</title></circle>`;
+  }
+  // eje X
+  for (let i=i0;i<=i1;i+=3) {
+    const t = new Date(S.time[i]);
+    svg += `<text x="${x(i)}" y="${H-24}" font-size="10" text-anchor="middle" fill="#777">${t.getDate()}/${t.getMonth()+1}</text>`;
+  }
+  svg += `<text x="${L+pw/2}" y="${H-6}" font-size="10" text-anchor="middle" fill="#999">Barras: lluvia diaria (máx. ${maxP.toFixed(0)} mm)</text></svg>`;
+  document.getElementById('chart').innerHTML = svg;
+
+  let best = '';
+  for (const [k,s] of Object.entries(SPECIES)) {
+    let bi = TODAY; for (let i=TODAY;i<=i1;i++) if (scores[i][k].score > scores[bi][k].score) bi = i;
+    const sc = scores[bi][k].score;
+    best += `<div class="best"><b style="color:${s.color}">${s.title}</b>: mejor día previsto ${dayName(S.time[bi],{weekday:'long',day:'numeric',month:'long'})} (${sc}/100, ${LABEL[color(sc)].toLowerCase()})</div>`;
+  }
+  document.getElementById('best').innerHTML = best;
+}
+
+select(DEFAULT.lat, DEFAULT.lon, DEFAULT.name);
+</script>
+</body>
+</html>
